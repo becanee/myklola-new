@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Menu, X } from "lucide-react";
+import Link from "next/link";
 
 const navLinks = [
-  { name: "Home", href: "#features" },
-  { name: "Capabilities", href: "#features" },
+  { name: "Home", href: "/" },
+  { name: "Capabilities", href: "/#features" },
 ];
 
 export function Navigation() {
@@ -40,23 +41,23 @@ export function Navigation() {
           }`}
         >
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center gap-2 group">
             <img src="/logo-blue.png" alt="Klola Logo" className="w-14" />
             {/* <span className={`font-display tracking-tight transition-all duration-500 ${isScrolled ? "text-xl" : "text-2xl"}`}>Klola</span>
             <span className={`text-muted-foreground font-mono -ml-2 transition-all duration-500 ${isScrolled ? "text-[10px] mt-1.5" : "text-xs mt-2"}`}>.id</span> */}
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-12">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.name}
                 href={link.href}
                 className="text-sm text-foreground/70 hover:text-foreground transition-colors duration-300 relative group"
               >
                 {link.name}
                 <span className="absolute -bottom-1 left-0 w-0 h-px bg-foreground transition-all duration-300 group-hover:w-full" />
-              </a>
+              </Link>
             ))}
           </div>
 
@@ -102,7 +103,7 @@ export function Navigation() {
           {/* Navigation Links */}
           <div className="flex-1 flex flex-col justify-center gap-8">
             {navLinks.map((link, i) => (
-              <a
+              <Link
                 key={link.name}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -116,7 +117,7 @@ export function Navigation() {
                 }}
               >
                 {link.name}
-              </a>
+              </Link>
             ))}
           </div>
 

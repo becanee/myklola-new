@@ -5,7 +5,7 @@ import { Navigation } from "@/components/landing/navigation";
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Klola — Portal Tiket & Demo Produk',
+  title: 'Portal — Klola Indonesia',
   description: 'Hub terpadu Klola Indonesia untuk eksplorasi demo produk, pelaporan tiket dukungan, dan koneksi langsung ke tim support.',
 };
 
