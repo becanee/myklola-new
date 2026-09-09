@@ -15,7 +15,7 @@ COPY package.json bun.lock* ./
 
 # Install project dependencies with frozen lockfile for reproducible builds
 RUN --mount=type=cache,target=/root/.bun/install/cache \
-    bun install --no-save --frozen-lockfile
+    bun install --no-save
 
 # ============================================
 # Stage 2: Build Next.js application in standalone mode
