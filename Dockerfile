@@ -46,26 +46,7 @@ ENV NODE_ENV=production
 RUN npx next build
 
 # ============================================
-# Stage 3: Drizzle Studio (pembacaan schema, butuh source + deps)
-# ============================================
-
-FROM node:22-bookworm-slim AS studio
-
-WORKDIR /app
-
-# Butuh source code + node_modules untuk resolve schema (drizzle/schemas/*)
-COPY --from=dependencies /app/node_modules ./node_modules
-COPY . .
-
-ENV NODE_ENV=production
-
-# Drizzle Studio: port 4983 (default), host 0.0.0.0 agar bisa diakses dari luar container
-EXPOSE 4983
-
-CMD ["npx", "drizzle-kit", "studio", "--port", "4983", "--host", "0.0.0.0"]
-
-# ============================================
-# Stage 4: Run Next.js application
+# Stage 3: Run Next.js application
 # ============================================
 
 FROM node:22-bookworm-slim AS runner
