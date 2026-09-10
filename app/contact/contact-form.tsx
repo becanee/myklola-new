@@ -72,7 +72,7 @@ export function ContactForm() {
     setResult(null);
     startTransition(async () => {
       try {
-        await fetch("/api/contact", {
+        await fetch("/api/v1/contact", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...data, token }),
