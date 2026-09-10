@@ -38,12 +38,12 @@ export function ServicesSection() {
   return (
     <section id="how-it-works" className="relative py-28 lg:py-36 overflow-hidden">
       {/* Oversized ghost numeral — subtle depth, not decoration spam */}
-      <span
+      {/* <span
         aria-hidden
         className="pointer-events-none select-none absolute -top-10 right-0 font-mono text-[clamp(12rem,30vw,26rem)] leading-none tracking-tight text-foreground/[0.035]"
       >
-        01
-      </span>
+        Services
+      </span> */}
 
       <div ref={ref} className="relative max-w-[1400px] mx-auto px-6 lg:px-10">
         {/* Editorial eyebrow */}

@@ -9,8 +9,8 @@ import { TeamSection } from "@/components/landing/team-section";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Portal — Klola Indonesia",
-  description: "Hub terpadu Klola Indonesia untuk eksplorasi demo produk, pelaporan dukungan, dan koneksi langsung ke tim support.",
+  title: "Klola Indonesia",
+  description: "Managing People. Anywhere. Anytime",
 };
 
 export default function Home() {

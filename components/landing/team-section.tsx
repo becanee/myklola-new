@@ -28,12 +28,12 @@ export function TeamSection() {
   return (
     <section className="relative overflow-hidden bg-foreground text-background py-28 lg:py-40">
       {/* Madelary ghost numeral — corner depth */}
-      <span
+      {/* <span
         aria-hidden
         className="pointer-events-none select-none absolute -bottom-16 right-0 font-mono text-[clamp(14rem,34vw,30rem)] leading-none tracking-tight text-white/[0.05]"
       >
-        03
-      </span>
+        Team
+      </span> */}
 
       <div className="relative max-w-[1400px] mx-auto px-6 lg:px-10">
         <div className="grid lg:grid-cols-12 gap-16">
