@@ -27,7 +27,9 @@ const formSchema = z.object({
   subject: z.string().min(3, "Subject must be at least 3 characters"),
   category: z.string().min(1, "Please select a category"),
   message: z.string().min(10, "Message must be at least 10 characters"),
-  agree: z.boolean(),
+  agree: z.boolean().refine(val => val === true, {
+    message: "You must agree before submitting",
+  }),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -171,7 +173,7 @@ export function ContactForm() {
           }}
           value={watch("message")}
           aria-invalid={!!messageError}
-          disabled={isSubmitting || !token} 
+          disabled={isSubmitting || !token}
         />
         {errors.message && (
           <p className="mt-1.5 text-xs text-destructive flex items-center gap-1">

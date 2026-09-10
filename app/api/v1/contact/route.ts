@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     return successResponse({
       code: 201,
       message: 'Contact form submitted successfully',
-      data: inserted[0],
+      // data: inserted[0],
     });
   } catch (err) {
     console.error('DB insert error:', err);
