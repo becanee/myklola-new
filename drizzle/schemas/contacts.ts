@@ -2,12 +2,16 @@ import { pgEnum, pgTable, varchar, text, boolean, timestamp, index } from 'drizz
 
 export const contactStatusEnum = pgEnum('contact_status', ['PENDING', 'PROGRESS', 'DONE']);
 
+const CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
+
+function randomId(prefix: string): string {
+  return `${prefix}-${Array.from({ length: 5 }, () => CHARS[Math.floor(Math.random() * CHARS.length)]).join('')}`;
+}
+
 export const contacts = pgTable(
   'contacts',
   {
-    id: varchar({ length: 24 }).$defaultFn(() =>
-      `kl-contact-${String.fromCharCode(97 + Math.floor(Math.random() * 26))}${String(Math.floor(Math.random() * 100000)).padStart(5, '0')}`
-    ).primaryKey().notNull(),
+    id: varchar({ length: 24 }).$defaultFn(() => randomId('kl-contact')).primaryKey().notNull(),
     name: varchar({ length: 255 }).notNull(),
     email: varchar({ length: 50 }).notNull(),
     subject: varchar({ length: 255 }).notNull(),

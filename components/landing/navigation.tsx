@@ -4,13 +4,17 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Menu, X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navLinks = [
   { name: "Home", href: "/" },
-  { name: "Capabilities", href: "/#features" },
+  { name: "Products", href: "/#products" },
+  { name: "Company", href: "/#features" },
+  { name: "Contact Us", href: "/contact" },
 ];
 
 export function Navigation() {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -42,7 +46,11 @@ export function Navigation() {
         >
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <img src="/logo-blue.png" alt="Klola Logo" className="w-14" />
+            <img
+              src={isScrolled && pathname === "/" ? 'logo-blue.png' : pathname !== "/" ? 'logo-blue.png' : 'logo-white.png'}
+              alt="Klola Logo"
+              className="w-14"
+            />
             {/* <span className={`font-display tracking-tight transition-all duration-500 ${isScrolled ? "text-xl" : "text-2xl"}`}>Klola</span>
             <span className={`text-muted-foreground font-mono -ml-2 transition-all duration-500 ${isScrolled ? "text-[10px] mt-1.5" : "text-xs mt-2"}`}>.id</span> */}
           </Link>
@@ -53,7 +61,7 @@ export function Navigation() {
               <Link
                 key={link.name}
                 href={link.href}
-                className="text-sm text-foreground/70 hover:text-foreground transition-colors duration-300 relative group"
+                className={`text-md ${isScrolled && pathname === "/" ? "text-foreground/70" : pathname !== "/" ? "text-foreground/70" : "text-secondary"} hover:text-foreground transition-colors duration-300 relative group`}
               >
                 {link.name}
                 <span className="absolute -bottom-1 left-0 w-0 h-px bg-foreground transition-all duration-300 group-hover:w-full" />
