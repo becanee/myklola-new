@@ -53,9 +53,17 @@ export function HeroSection() {
             <Link
               href="/demo"
               rel="noreferrer"
-              className="mt-8 inline-flex items-center gap-2 rounded-md bg-white text-primary px-6 py-3 font-semibold text-sm uppercase tracking-wide hover:opacity-90 transition-opacity"
+              className="mt-8 mr-4 inline-flex items-center gap-2 rounded-md bg-white text-primary px-6 py-3 font-semibold text-sm uppercase tracking-wide hover:opacity-90 transition-opacity"
             >
               Permintaan Demo
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/authentication"
+              rel="noreferrer"
+              className="mt-8 inline-flex items-center gap-2 rounded-md bg-primary text-white px-6 py-3 font-semibold text-sm uppercase tracking-wide hover:opacity-90 transition-opacity"
+            >
+              Client
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

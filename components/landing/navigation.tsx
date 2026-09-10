@@ -47,7 +47,13 @@ export function Navigation() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <img
-              src={isScrolled && pathname === "/" ? 'logo-blue.png' : pathname !== "/" ? 'logo-blue.png' : 'logo-white.png'}
+              src={
+                isScrolled && pathname === "/"
+                  ? "logo-blue.png"
+                  : pathname !== "/"
+                    ? "logo-blue.png"
+                    : "logo-white.png"
+              }
               alt="Klola Logo"
               className="w-14"
             />
@@ -55,7 +61,7 @@ export function Navigation() {
             <span className={`text-muted-foreground font-mono -ml-2 transition-all duration-500 ${isScrolled ? "text-[10px] mt-1.5" : "text-xs mt-2"}`}>.id</span> */}
           </Link>
 
-          {/* Desktop Navigation */}  
+          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-12">
             {navLinks.map((link) => (
               <Link
@@ -71,16 +77,15 @@ export function Navigation() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
-            {/* <a href="#" className={`text-foreground/70 hover:text-foreground transition-all duration-500 ${isScrolled ? "text-xs" : "text-sm"}`}>
-              Sign in
-            </a> */}
-            <Button
-              size="sm"
-              className={`bg-foreground hover:bg-foreground/90 text-background rounded-full transition-all duration-500 ${isScrolled ? "px-4 h-8 text-xs" : "px-6"}`}
-            >
-              Client Portal
-              <ArrowRight className="w-2 h-2 transition-transform group-hover:translate-x-1" />
-            </Button>
+            <Link href="/authentication">
+              <Button
+                size="sm"
+                className={`bg-foreground hover:bg-foreground/90 text-background rounded-full transition-all duration-500 ${isScrolled ? "px-4 h-8 text-xs" : "px-6"}`}
+              >
+                Client
+                <ArrowRight className="w-2 h-2 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -145,12 +150,14 @@ export function Navigation() {
             >
               Close
             </Button>
-            <Button
-              className="flex-1 bg-foreground text-background rounded-full h-14 text-base"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Client Portal
-            </Button>
+            <Link href="/authentication">
+              <Button
+                className="flex-1 bg-foreground text-background rounded-full h-14 text-base"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Client
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
