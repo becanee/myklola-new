@@ -55,7 +55,7 @@ export function Navigation() {
             <span className={`text-muted-foreground font-mono -ml-2 transition-all duration-500 ${isScrolled ? "text-[10px] mt-1.5" : "text-xs mt-2"}`}>.id</span> */}
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation */}  
           <div className="hidden md:flex items-center gap-12">
             {navLinks.map((link) => (
               <Link

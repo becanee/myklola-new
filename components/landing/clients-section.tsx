@@ -27,12 +27,12 @@ export function ClientsSection() {
   return (
     <section className="py-28 lg:py-32 bg-background relative overflow-hidden">
       {/* Oversized ghost numeral — continuity with 01-02-03-04 */}
-      <span
+      {/* <span
         aria-hidden
         className="pointer-events-none select-none absolute -bottom-8 right-0 font-mono text-[clamp(13rem,30vw,24rem)] leading-none tracking-tight text-foreground/[0.03]"
       >
-        04
-      </span>
+        Clients
+      </span> */}
 
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
         <div className="grid lg:grid-cols-12 gap-12 items-end">

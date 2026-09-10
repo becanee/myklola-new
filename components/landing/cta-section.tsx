@@ -10,12 +10,12 @@ export function CtaSection() {
   return (
     <section className="relative overflow-hidden border-t border-foreground/10">
       {/* Ghost numeral — continuity 01..05 */}
-      <span
+      {/* <span
         aria-hidden
         className="pointer-events-none select-none absolute -top-10 right-6 font-mono text-[clamp(11rem,26vw,22rem)] leading-none tracking-tight text-foreground/[0.025]"
       >
-        05
-      </span>
+        CTA
+      </span> */}
 
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-24 lg:py-32">
         <div className="grid lg:grid-cols-12 items-end gap-12">

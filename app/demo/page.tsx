@@ -1,6 +1,12 @@
-import { FooterSection } from '@/components/landing/footer-section';
-import { Navigation } from '@/components/landing/navigation';
-import RequestDemoModule from '@/modules/request-demo';
+import { FooterSection } from "@/components/landing/footer-section";
+import { Navigation } from "@/components/landing/navigation";
+import RequestDemoModule from "@/modules/request-demo";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Request Demo",
+  description: "Managing People. Anywhere. Anytime",
+};
 
 export default function DemoPage() {
   return (

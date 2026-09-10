@@ -19,13 +19,13 @@ const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains'
 });
 
-const SITE_NAME = 'Klola';
-const APP_DESCRIPTION = 'Portal tiket dan demo produk Klola Indonesia — hub terpadu untuk dukungan pelanggan, pelacakan masalah, dan akses langsung ke tim support.';
-const APP_URL = 'https://portal.myklola.cloud';
+const SITE_NAME = 'Klola Indonesia';
+const APP_DESCRIPTION = 'Managing People. Anywhere. Anytime';
+const APP_URL = 'https://new.myklola.cloud';
 
 export const metadata: Metadata = {
   title: {
-    default: `Portal — ${SITE_NAME} Indonesia`,
+    default: `${SITE_NAME}`,
     template: `%s | ${SITE_NAME}`,
   },
   description: APP_DESCRIPTION,
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'id_ID',
     countryName: 'Indonesia',
-    title: `${SITE_NAME} — Portal Tiket & Demo Produk`,
+    title: `${SITE_NAME}`,
     description: APP_DESCRIPTION,
     url: APP_URL,
     siteName: SITE_NAME,
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${SITE_NAME} — Portal Tiket & Demo Produk`,
+    title: `${SITE_NAME}`,
     description: APP_DESCRIPTION,
     images: ['/logo-blue.png'],
   },

@@ -68,12 +68,12 @@ export function ProductSections() {
   return (
     <section id="products" className="relative py-28 lg:py-36 overflow-hidden">
       {/* Oversized ghost numeral */}
-      <span
+      {/* <span
         aria-hidden
         className="pointer-events-none select-none absolute -top-8 left-0 font-mono text-[clamp(12rem,30vw,26rem)] leading-none tracking-tight text-foreground/[0.03]"
       >
-        02
-      </span>
+        Products
+      </span> */}
 
       <div className="relative max-w-[1400px] mx-auto px-6 lg:px-10">
         {/* Section header */}
