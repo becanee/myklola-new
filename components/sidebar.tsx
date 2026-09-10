@@ -1,0 +1,258 @@
+"use client";
+
+import {
+  Building2,
+  Command,
+  FileStack,
+  LayoutGrid,
+  MessageSquare,
+  PanelLeft,
+  Search,
+  Settings,
+  Sparkles,
+  Target,
+  Users,
+  X,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
+import { useState } from "react";
+import {
+  AnimatedSidebar as _Sidebar,
+  AnimatedSidebarClose,
+  AnimatedSidebarContent,
+  AnimatedSidebarFooter,
+  AnimatedSidebarGroup,
+  AnimatedSidebarGroupContent,
+  AnimatedSidebarGroupLabel,
+  AnimatedSidebarHeader,
+  AnimatedSidebarInset,
+  AnimatedSidebarMenu,
+  AnimatedSidebarMenuButton,
+  AnimatedSidebarMenuItem,
+  AnimatedSidebarMenuSub,
+  AnimatedSidebarMenuSubButton,
+  AnimatedSidebarMenuSubItem,
+  AnimatedSidebarProvider,
+  AnimatedSidebarRail,
+  AnimatedSidebarTrigger,
+} from "@/components/motion/animated-sidebar";
+
+// forwardRef HTMLElement typing mismatch with RSC — cast
+const AnimatedSidebar = _Sidebar as React.FC<{
+  side?: "left" | "right";
+  variant?: "sidebar" | "floating" | "inset";
+  collapsible?: "offcanvas" | "icon" | "none";
+  ariaLabel?: string;
+  panelClassName?: string;
+  children?: ReactNode;
+}>;
+
+interface NavItem {
+  label: string;
+  icon: typeof LayoutGrid;
+  href?: string;
+  badge?: string;
+  children?: NavItem[];
+}
+
+const navigation: NavItem[] = [
+  { label: "Dashboard", icon: LayoutGrid, href: "/client" },
+  { label: "Tiket", icon: FileStack, href: "/client/tickets" },
+  {
+    label: "Manajemen",
+    icon: Building2,
+    href: "/client/companies",
+    children: [
+      { label: "Perusahaan", icon: Building2, href: "/client/companies" },
+      { label: "Tim", icon: Users, href: "/client/team" },
+      { label: "Proyek", icon: Target, href: "/client/projects" },
+    ],
+  },
+];
+
+const quickLinks: NavItem[] = [
+  { label: "Semua tiket", icon: FileStack, href: "/client/tickets" },
+  { label: "Aktivitas terbaru", icon: FileStack, href: "/client/tickets/activity" },
+  { label: "Segmen", icon: Target, href: "/client/tickets/segments" },
+];
+
+const topBar: NavItem[] = [
+  { label: "Cari", icon: Search, href: "/client/search" },
+  { label: "AI Assistant", icon: Sparkles, href: "/client/ai" },
+  { label: "Inbox", icon: MessageSquare, badge: "4", href: "/client/inbox" },
+];
+
+function matchPath(pathname: string, href?: string, children?: NavItem[]) {
+  if (href && pathname === href) return true;
+  if (children) return children.some((c) => c.href && pathname === c.href);
+  return false;
+}
+
+export default function Sidebar({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const [active, setActive] = useState("Dashboard");
+  const [openSection, setOpenSection] = useState<string | null>(null);
+
+  return (
+    <AnimatedSidebarProvider className="h-screen min-h-0">
+      <AnimatedSidebar
+        ariaLabel="Klola workspace"
+        collapsible="icon"
+        panelClassName="border-border/40 bg-background"
+      >
+        <AnimatedSidebarHeader className="p-3 pb-2">
+          <div className="flex min-h-11 items-center gap-3 overflow-hidden px-2">
+            <div className="grid size-7 shrink-0 place-items-center rounded-lg bg-[#0B3464] text-white">
+              <Command aria-hidden="true" className="size-4" />
+            </div>
+            <Link
+              href="/"
+              className="flex min-w-0 flex-1 items-center gap-2 rounded-lg text-left outline-none focus-visible:ring-2 focus-visible:ring-ring group-data-[state=collapsed]/sidebar:hidden"
+            >
+              <span className="truncate text-sm font-semibold text-foreground">
+                Klola Indonesia
+              </span>
+            </Link>
+            <AnimatedSidebarClose className="ml-auto text-muted-foreground hover:bg-muted md:hidden">
+              <X aria-hidden="true" className="size-4" />
+            </AnimatedSidebarClose>
+          </div>
+        </AnimatedSidebarHeader>
+
+        <AnimatedSidebarContent className="px-2 pt-1">
+          <AnimatedSidebarGroup className="pb-2">
+            <AnimatedSidebarGroupContent>
+              <AnimatedSidebarMenu>
+                {topBar.map((item) => (
+                  <AnimatedSidebarMenuItem key={item.label}>
+                    <AnimatedSidebarMenuButton
+                      icon={<item.icon className="size-4" />}
+                      badge={item.badge}
+                      href={item.href}
+                      onSelect={() => setActive(item.label)}
+                    >
+                      {item.label}
+                    </AnimatedSidebarMenuButton>
+                  </AnimatedSidebarMenuItem>
+                ))}
+              </AnimatedSidebarMenu>
+            </AnimatedSidebarGroupContent>
+          </AnimatedSidebarGroup>
+
+          <AnimatedSidebarGroup className="pt-1">
+            <AnimatedSidebarGroupLabel>Workspace</AnimatedSidebarGroupLabel>
+            <AnimatedSidebarGroupContent>
+              <AnimatedSidebarMenu>
+                {navigation.map(({ label, icon: Icon, href, children: navChildren }) => {
+                  const isActive = matchPath(pathname, href, navChildren);
+                  return (
+                    <AnimatedSidebarMenuItem key={label}>
+                      <AnimatedSidebarMenuButton
+                        isActive={isActive}
+                        ariaExpanded={navChildren ? openSection === label : undefined}
+                        icon={<Icon className="size-4" />}
+                        href={href}
+                        onSelect={() => {
+                          if (navChildren) {
+                            setOpenSection((prev) => (prev === label ? null : label));
+                          } else {
+                            setActive(label);
+                          }
+                        }}
+                      >
+                        {label}
+                      </AnimatedSidebarMenuButton>
+                      {navChildren ? (
+                        <AnimatedSidebarMenuSub open={openSection === label}>
+                          {navChildren.map((child) => {
+                            const childActive = pathname === child.href;
+                            return (
+                              <AnimatedSidebarMenuSubItem key={child.label}>
+                                <AnimatedSidebarMenuSubButton
+                                  isActive={childActive}
+                                  href={child.href}
+                                  icon={<child.icon className="size-4" />}
+                                  onSelect={() => setActive(child.label)}
+                                >
+                                  {child.label}
+                                </AnimatedSidebarMenuSubButton>
+                              </AnimatedSidebarMenuSubItem>
+                            );
+                          })}
+                        </AnimatedSidebarMenuSub>
+                      ) : null}
+                    </AnimatedSidebarMenuItem>
+                  );
+                })}
+              </AnimatedSidebarMenu>
+            </AnimatedSidebarGroupContent>
+          </AnimatedSidebarGroup>
+
+          <AnimatedSidebarGroup className="pt-1">
+            <AnimatedSidebarGroupLabel>Tiket Support</AnimatedSidebarGroupLabel>
+            <AnimatedSidebarGroupContent>
+              <AnimatedSidebarMenu>
+                {quickLinks.map((item) => {
+                  const itemActive = pathname === item.href;
+                  return (
+                    <AnimatedSidebarMenuItem key={item.label}>
+                      <AnimatedSidebarMenuSubButton
+                        isActive={itemActive}
+                        href={item.href}
+                        icon={<item.icon className="size-4" />}
+                        onSelect={() => setActive(item.label)}
+                      >
+                        {item.label}
+                      </AnimatedSidebarMenuSubButton>
+                    </AnimatedSidebarMenuItem>
+                  );
+                })}
+              </AnimatedSidebarMenu>
+            </AnimatedSidebarGroupContent>
+          </AnimatedSidebarGroup>
+        </AnimatedSidebarContent>
+
+        <AnimatedSidebarFooter className="gap-3 border-t border-border/40 p-3">
+          <button
+            type="button"
+            className="flex min-h-11 w-full items-center gap-3 overflow-hidden rounded-xl p-1 text-left outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#0B3464] text-xs font-semibold text-white">
+              KB
+            </span>
+            <span className="min-w-0 flex-1 group-data-[state=collapsed]/sidebar:hidden">
+              <span className="block truncate text-sm font-medium text-foreground">
+                Kevin Budiman
+              </span>
+              <span className="block truncate text-xs text-muted-foreground">
+                kevin@klola.id
+              </span>
+            </span>
+          </button>
+          <AnimatedSidebarMenuButton
+            icon={<Settings className="size-4" />}
+            href="/client/settings"
+            onSelect={() => setActive("Pengaturan")}
+          >
+            Pengaturan
+          </AnimatedSidebarMenuButton>
+        </AnimatedSidebarFooter>
+
+        <AnimatedSidebarRail />
+      </AnimatedSidebar>
+
+      <AnimatedSidebarInset className="min-h-0 flex-1 bg-background">
+        <header className="flex h-16 shrink-0 items-center gap-4 border-border border-b px-6">
+          <AnimatedSidebarTrigger className="text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            <PanelLeft aria-hidden="true" className="size-4" />
+          </AnimatedSidebarTrigger>
+          <div className="h-5 w-px bg-border" />
+          <h1 className="text-sm font-medium text-foreground">{active}</h1>
+        </header>
+        <div className="flex min-h-0 flex-1 overflow-auto">{children}</div>
+      </AnimatedSidebarInset>
+    </AnimatedSidebarProvider>
+  );
+}
