@@ -1,146 +1,84 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { AnimatedSphere } from "./animated-sphere";
-
-const words = ["Demo", "Tickets", "Support"];
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export function HeroSection() {
   const [isVisible, setIsVisible] = useState(false);
-  const [wordIndex, setWordIndex] = useState(0);
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setWordIndex((prev) => (prev + 1) % words.length);
-    }, 2500);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden">
-      {/* Animated sphere background */}
-      {/* <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] lg:w-[800px] lg:h-[800px] opacity-40 pointer-events-none">
-        <AnimatedSphere />
-      </div> */}
-
-      {/* Subtle grid lines */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={`h-${i}`}
-            className="absolute h-px bg-foreground/10"
-            style={{
-              top: `${12.5 * (i + 1)}%`,
-              left: 0,
-              right: 0,
-            }}
-          />
-        ))}
-        {[...Array(12)].map((_, i) => (
-          <div
-            key={`v-${i}`}
-            className="absolute w-px bg-foreground/10"
-            style={{
-              left: `${8.33 * (i + 1)}%`,
-              top: 0,
-              bottom: 0,
-            }}
-          />
-        ))}
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-primary text-white">
+      {/* Background image */}
+      <div
+        className="absolute inset-0 pointer-events-none bg-cover bg-center"
+        style={{ backgroundImage: "url('/hero-bg.jpg')" }}
+      />
+      {/* Overlay primary untuk keterbacaan teks */}
+      <div className="absolute inset-0 pointer-events-none bg-primary/90" />
+      {/* Background pattern */}
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
+        <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full bg-foreground/20 blur-3xl" />
       </div>
 
-      <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-12 py-32 lg:py-40">
-        {/* Eyebrow */}
-        <div
-          className={`mb-8 transition-all duration-700 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}
-        >
-          <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
-            <span className="w-8 h-px bg-foreground/30" />
-            Klola Indonesia
-          </span>
-        </div>
+      <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-10 py-20 lg:py-28 w-full">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Copy */}
+          <div>
+            <h1
+              className={`text-4xl sm:text-5xl lg:text-[3.4rem] font-display leading-[1.1] tracking-tight transition-all duration-1000 ${
+                isVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-6"
+              }`}
+            >
+              HR Management System &{" "}
+              <span className="text-warning">Payroll Software</span>
+            </h1>
+            <p
+              className={`mt-6 text-lg leading-relaxed text-white/90 transition-all duration-1000 delay-150 ${
+                isVisible ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              <strong>Manajemen SDM. Dari mana saja. Kapan saja.</strong>
+              <br />
+              <br />
+              Klola membantu pengelolaan SDM di dalam organisasi menjadi mudah,
+              cepat dan akurat.
+            </p>
+            <Link
+              href="/demo"
+              rel="noreferrer"
+              className="mt-8 inline-flex items-center gap-2 rounded-md bg-white text-primary px-6 py-3 font-semibold text-sm uppercase tracking-wide hover:opacity-90 transition-opacity"
+            >
+              Permintaan Demo
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
 
-        {/* Main headline */}
-        <div className="mb-12">
-          <h1
-            className={`text-[clamp(3rem,12vw,10rem)] font-display leading-[0.9] tracking-tight transition-all duration-1000 ${
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
-            }`}
-          >
-            <span className="block">Welcome to</span>
-            <span className="block">
-              Klola{" "}
-              <span className="relative inline-block">
-                <span key={wordIndex} className="inline-flex">
-                  {words[wordIndex].split("").map((char, i) => (
-                    <span
-                      key={`${wordIndex}-${i}`}
-                      className="inline-block animate-char-in"
-                      style={{
-                        animationDelay: `${i * 50}ms`,
-                      }}
-                    >
-                      {char}
-                    </span>
-                  ))}
-                </span>
-                <span className="absolute -bottom-2 left-0 right-0 h-3 bg-foreground/10" />
-              </span>
-            </span>
-          </h1>
-        </div>
-
-        {/* Description */}
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-end">
-          <p
-            className={`text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-xl transition-all duration-700 delay-200 ${
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-4"
-            }`}
-          >
-            Your dedicated hub to explore product demos, submit tickets, and
-            connect directly with support. Everything you need to keep your
-            operations running seamlessly.
-          </p>
-
-          {/* CTAs */}
+          {/* Video */}
           <div
-            className={`flex flex-col sm:flex-row items-start gap-4 transition-all duration-700 delay-300 ${
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-4"
-            }`}
+            className={`hidden lg:block transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
           >
-            <Button
-              size="sm"
-              className="bg-foreground hover:bg-foreground/90 text-background px-4 h-10 text-base rounded-full group"
-            >
-              Client Portal
-              <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-            </Button>
-            {/* <Button
-              size="lg"
-              variant="outline"
-              className="h-14 px-8 text-base rounded-full border-foreground/20 hover:bg-foreground/5"
-            >
-              Watch demo
-            </Button> */}
+            <div className="rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/20">
+              <video
+                width="640"
+                height="360"
+                controls
+                poster="/klola.png"
+                className="w-full aspect-video bg-primary/70"
+              >
+                <source src="/klola.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Scroll indicator */}
     </section>
   );
 }

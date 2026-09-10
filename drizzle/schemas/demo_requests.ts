@@ -1,11 +1,15 @@
 import { pgTable, varchar, text, timestamp, index } from 'drizzle-orm/pg-core';
 
+const CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
+
+function randomId(prefix: string): string {
+  return `${prefix}-${Array.from({ length: 5 }, () => CHARS[Math.floor(Math.random() * CHARS.length)]).join('')}`;
+}
+
 export const demoRequests = pgTable(
   'demo_requests',
   {
-    id: varchar({ length: 24 }).$defaultFn(() =>
-      `kl-demo-${String.fromCharCode(97 + Math.floor(Math.random() * 26))}${String(Math.floor(Math.random() * 100000)).padStart(5, '0')}`
-    ).primaryKey().notNull(),
+    id: varchar({ length: 24 }).$defaultFn(() => randomId('kl-demo')).primaryKey().notNull(),
     full_name: varchar({ length: 255 }).notNull(),
     company_name: varchar({ length: 255 }),
     email: varchar({ length: 50 }).notNull(),

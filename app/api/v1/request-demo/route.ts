@@ -1,27 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { successResponse, failedResponse } from '@/lib/response';
-import { db } from '@/drizzle/db';
-import { demoRequests } from '@/drizzle/schemas/demo_requests';
-
-const SECRET_KEY = process.env.TURNSTILE_SECRET_KEY;
-
-async function validateTurnstile(token: string | undefined, remoteIp: string) {
-  if (!token) return { success: false, 'error-codes': ['missing-token'] };
-
-  try {
-    const res = await fetch(
-      'https://challenges.cloudflare.com/turnstile/v0/siteverify',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ secret: SECRET_KEY, response: token, remoteip: remoteIp }),
-      },
-    );
-    return await res.json();
-  } catch {
-    return { success: false, 'error-codes': ['internal-error'] };
-  }
-}
+import { verifyTurnstileToken } from '@/services/cloudflareVerify';
+import { createDemoRequest } from '@/services/request-demo';
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
@@ -31,8 +11,7 @@ export async function POST(request: NextRequest) {
 
   const ip = request.headers.get('x-real-ip') || request.headers.get('x-forwarded-for') || '';
 
-  // Validate Turnstile first
-  const verification = await validateTurnstile(body.token, ip);
+  const verification = await verifyTurnstileToken(body.token, ip);
   if (!verification.success) {
     return failedResponse({
       code: 400,
@@ -41,27 +20,21 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const preferredDate = body.date instanceof Date ? body.date : new Date(body.date);
-
-    const inserted = await db
-      .insert(demoRequests)
-      .values({
-        full_name: body.fullName,
-        company_name: body.companyName || null,
-        email: body.email,
-        phone: body.phone || null,
-        purpose: body.purpose,
-        questions: body.questions || null,
-        preferred_date: preferredDate,
-        duration: body.duration,
-        start_time: body.startTime,
-      })
-      .returning({ id: demoRequests.id });
+    await createDemoRequest({
+      fullName: body.fullName,
+      companyName: body.companyName,
+      email: body.email,
+      phone: body.phone,
+      purpose: body.purpose,
+      questions: body.questions,
+      date: body.date,
+      duration: body.duration,
+      startTime: body.startTime,
+    });
 
     return successResponse({
       code: 201,
       message: 'Demo request submitted successfully',
-      // data: inserted[0],
     });
   } catch (err) {
     console.error('DB insert error:', err);
