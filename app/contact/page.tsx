@@ -3,6 +3,7 @@
 import { Navigation } from '@/components/landing/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { ContactForm } from './contact-form';
+import { FooterSection } from '@/components/landing/footer-section';
 const channels = [
   {
     number: '01',
@@ -139,6 +140,8 @@ export default function ContactPage() {
           </ScrollReveal>
         </section>
       </main>
+
+      <FooterSection />
     </div>
   );
 }

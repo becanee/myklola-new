@@ -23,13 +23,12 @@ const footerLinks = {
       href: "https://klola.id/pages/careers",
       badge: "Hiring",
     },
-    { name: "Contact", href: "https://klola.id/contact" },
   ],
-  // Legal: [
-  //   { name: "Privacy", href: "#" },
-  //   { name: "Terms", href: "#" },
-  //   { name: "Security", href: "#security" },
-  // ],
+  Legal: [
+    { name: "Privacy", href: "/" },
+    { name: "Terms", href: "/" },
+    { name: "Security", href: "/" },
+  ],
 };
 
 const socialLinks = [
