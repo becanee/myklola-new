@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { useRouter } from "next/navigation";
 import {
   Building2,
   CheckCircle,
@@ -9,21 +10,19 @@ import {
   Loader2,
   Lock,
   Mail,
+  Phone,
   User,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/motion/tabs";
 import { Input } from "@/components/motion/input";
+import { Turnstile } from "@marsidev/react-turnstile";
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 /* ─── button preset ─── */
-function SubmitButton({
-  busy,
-  label,
-}: {
-  busy: boolean;
-  label: string;
-}) {
+function SubmitButton({ busy, label }: { busy: boolean; label: string }) {
   return (
     <button
       type="submit"
@@ -70,8 +69,12 @@ function validatePassword(v: string) {
   if (v.length < 6) return "Minimal 6 karakter";
   return "";
 }
+function validateWhatsapp(v: string) {
+  if (!v) return "WhatsApp wajib diisi";
+  return "";
+}
 
-/* ─── form field map ─── */
+/* ─── field definition ─── */
 interface Field {
   label: string;
   type: string;
@@ -107,8 +110,13 @@ const registerFields: Field[] = [
     validate: validateEmail,
   },
   {
+    label: "WhatsApp", type: "tel", placeholder: "08xxxxxxxxxx",
+    autoComplete: "tel", icon: Phone, key: "whatsapp",
+    validate: validateWhatsapp,
+  },
+  {
     label: "Perusahaan", type: "text", placeholder: "Nama perusahaan (opsional)",
-    autoComplete: "organization", icon: Building2, key: "company",
+    autoComplete: "organization", icon: Building2, key: "company_name",
   },
   {
     label: "Password", type: "password", placeholder: "Minimal 6 karakter",
@@ -174,13 +182,7 @@ function FormField({
 }
 
 /* ─── tab content wrapper ─── */
-function AnimatedTabContent({
-  value,
-  children,
-}: {
-  value: string;
-  children: React.ReactNode;
-}) {
+function AnimatedTabContent({ value, children }: { value: string; children: React.ReactNode }) {
   return (
     <TabsContent value={value}>
       <AnimatePresence mode="wait">
@@ -200,6 +202,7 @@ function AnimatedTabContent({
 
 /* ─── main export ─── */
 export default function LoginForm() {
+  const router = useRouter();
   const [tab, setTab] = useState("login");
 
   /* login state */
@@ -208,19 +211,25 @@ export default function LoginForm() {
   const [loginErr, setLoginErr] = useState<string | null>(null);
   const [loginBusy, setLoginBusy] = useState(false);
   const [loginFieldErrs, setLoginFieldErrs] = useState<Record<string, string>>({});
+  const [loginTurnstileToken, setLoginTurnstileToken] = useState<string | null>(null);
 
   /* register state */
   const [reg, setReg] = useState({
-    name: "", email: "", company: "", password: "", confirm: "",
+    name: "", email: "", whatsapp: "", company_name: "", password: "", confirm: "",
   });
   const [showRegPass, setShowRegPass] = useState(false);
+  const [agree, setAgree] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [regErr, setRegErr] = useState<string | null>(null);
+  const [regSuccess, setRegSuccess] = useState(false);
   const [regBusy, setRegBusy] = useState(false);
   const [regFieldErrs, setRegFieldErrs] = useState<Record<string, string>>({});
 
   /* ── login submit ── */
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate fields
     const errs: Record<string, string> = {};
     loginFields.forEach((f) => {
       if (f.validate) {
@@ -231,13 +240,36 @@ export default function LoginForm() {
     setLoginFieldErrs(errs);
     if (Object.keys(errs).length) return;
 
+    // Validate Turnstile
+    if (!TURNSTILE_SITE_KEY || !loginTurnstileToken) {
+      setLoginErr("Verifikasi keamanan diperlukan.");
+      return;
+    }
+
     setLoginErr(null);
     setLoginBusy(true);
+
     try {
-      await new Promise((r) => setTimeout(r, 1000));
-      // TODO: API call
-    } catch {
-      setLoginErr("Email atau password salah. Coba lagi.");
+      const res = await fetch("/api/v1/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: login.email,
+          password: login.password,
+          token: loginTurnstileToken,
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json.message || "Login gagal");
+      }
+
+      // Success — redirect to dashboard
+      router.push("/client");
+    } catch (err) {
+      setLoginErr(err instanceof Error ? err.message : "Terjadi kesalahan. Coba lagi.");
     } finally {
       setLoginBusy(false);
     }
@@ -246,6 +278,14 @@ export default function LoginForm() {
   /* ── register submit ── */
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate agree
+    if (!agree) {
+      setRegErr("Anda harus menyetujui Syarat & Ketentuan dan Kebijakan Privasi.");
+      return;
+    }
+
+    // Validate fields
     const errs: Record<string, string> = {};
     registerFields.forEach((f) => {
       if (f.validate) {
@@ -256,13 +296,40 @@ export default function LoginForm() {
     setRegFieldErrs(errs);
     if (Object.keys(errs).length) return;
 
+    // Validate Turnstile
+    if (!turnstileToken) {
+      setRegErr("Verifikasi keamanan diperlukan.");
+      return;
+    }
+
     setRegErr(null);
+    setRegSuccess(false);
     setRegBusy(true);
+
     try {
-      await new Promise((r) => setTimeout(r, 1000));
-      // TODO: API call
-    } catch {
-      setRegErr("Terjadi kesalahan. Coba lagi.");
+      const res = await fetch("/api/v1/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: reg.name,
+          email: reg.email,
+          whatsapp: reg.whatsapp,
+          company_name: reg.company_name || undefined,
+          password: reg.password,
+          agree,
+          token: turnstileToken,
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json.message || "Registrasi gagal");
+      }
+
+      setRegSuccess(true);
+    } catch (err) {
+      setRegErr(err instanceof Error ? err.message : "Terjadi kesalahan. Coba lagi.");
     } finally {
       setRegBusy(false);
     }
@@ -303,6 +370,17 @@ export default function LoginForm() {
                 />
               ))}
 
+              {/* Turnstile captcha */}
+              {TURNSTILE_SITE_KEY && (
+                <Turnstile
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onSuccess={(t) => setLoginTurnstileToken(t)}
+                  onExpire={() => setLoginTurnstileToken(null)}
+                  onError={() => setLoginTurnstileToken(null)}
+                  options={{ theme: "light" }}
+                />
+              )}
+
               <div className="mt-2 flex items-center justify-between">
                 <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
                   <input
@@ -329,51 +407,79 @@ export default function LoginForm() {
         {/* ── Register ── */}
         <AnimatedTabContent value="register">
           <div className="flex flex-col gap-5">
-            {regErr && (
+            {regSuccess ? (
               <motion.div
-                role="alert"
-                initial={{ opacity: 0, y: -4 }}
+                className="flex flex-col items-center gap-3 py-4 text-center"
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-lg border border-destructive/20 bg-destructive/[0.06] px-3 py-2.5 text-xs text-destructive"
               >
-                {regErr}
+                <CheckCircle className="size-8 text-green-500" />
+                <p className="text-sm font-medium text-foreground">
+                  Registrasi berhasil! Silakan cek email untuk verifikasi akun.
+                </p>
               </motion.div>
+            ) : (
+              <>
+                {regErr && (
+                  <motion.div
+                    role="alert"
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="rounded-lg border border-destructive/20 bg-destructive/[0.06] px-3 py-2.5 text-xs text-destructive"
+                  >
+                    {regErr}
+                  </motion.div>
+                )}
+
+                <form onSubmit={handleRegister} className="flex flex-col gap-1">
+                  {registerFields.map((f) => (
+                    <FormField
+                      key={f.key}
+                      field={f}
+                      value={reg[f.key as keyof typeof reg]}
+                      onChange={(v) => setReg((p) => ({ ...p, [f.key]: v }))}
+                      showPassword={showRegPass}
+                      onTogglePassword={() => setShowRegPass((s) => !s)}
+                      error={regFieldErrs[f.key]}
+                    />
+                  ))}
+
+                  {/* Turnstile captcha */}
+                  {TURNSTILE_SITE_KEY && (
+                    <Turnstile
+                      siteKey={TURNSTILE_SITE_KEY}
+                      onSuccess={(t) => setTurnstileToken(t)}
+                      onExpire={() => setTurnstileToken(null)}
+                      onError={() => setTurnstileToken(null)}
+                      options={{ theme: "light" }}
+                    />
+                  )}
+
+                  <label className="mt-2 flex cursor-pointer items-start gap-2 text-sm text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={agree}
+                      onChange={(e) => setAgree(e.target.checked)}
+                      className="mt-0.5 size-4 shrink-0 rounded border-border accent-[#0B3464]"
+                    />
+                    <span className="leading-5">
+                      Saya menyetujui{" "}
+                      <Link href="/terms" className="text-[#0B3464] hover:underline">
+                        Syarat & Ketentuan
+                      </Link>{" "}
+                      dan{" "}
+                      <Link href="/privacy" className="text-[#0B3464] hover:underline">
+                        Kebijakan Privasi
+                      </Link>
+                    </span>
+                  </label>
+
+                  <div className="mt-3">
+                    <SubmitButton busy={regBusy} label="Buat akun" />
+                  </div>
+                </form>
+              </>
             )}
-
-            <form onSubmit={handleRegister} className="flex flex-col gap-1">
-              {registerFields.map((f) => (
-                <FormField
-                  key={f.key}
-                  field={f}
-                  value={reg[f.key as keyof typeof reg]}
-                  onChange={(v) => setReg((p) => ({ ...p, [f.key]: v }))}
-                  showPassword={showRegPass}
-                  onTogglePassword={() => setShowRegPass((s) => !s)}
-                  error={regFieldErrs[f.key]}
-                />
-              ))}
-
-              <label className="mt-3 flex cursor-pointer items-start gap-2 text-sm text-muted-foreground">
-                <input
-                  type="checkbox"
-                  className="mt-0.5 size-4 shrink-0 rounded border-border accent-[#0B3464]"
-                />
-                <span className="leading-5">
-                  Saya menyetujui{" "}
-                  <Link href="/terms" className="text-[#0B3464] hover:underline">
-                    Syarat & Ketentuan
-                  </Link>{" "}
-                  dan{" "}
-                  <Link href="/privacy" className="text-[#0B3464] hover:underline">
-                    Kebijakan Privasi
-                  </Link>
-                </span>
-              </label>
-
-              <div className="mt-3">
-                <SubmitButton busy={regBusy} label="Buat akun" />
-              </div>
-            </form>
           </div>
         </AnimatedTabContent>
       </Tabs>
