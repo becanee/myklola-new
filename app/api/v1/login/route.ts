@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import { successResponse, failedResponse } from '@/lib/response'
 import { verifyTurnstileToken } from '@/services/cloudflareVerify'
 import { loginUser } from '@/services/auth/login'
+import { securedEncrypt } from '@/lib/encrypter-server'
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null)
@@ -43,14 +44,31 @@ export async function POST(request: NextRequest) {
 
     const maxAge = 86400 // 24h
 
-    // Set two separate cookies (was previously one string with stray quote)
+    // _T — httpOnly JWT (server-side validation only, XSS-proof)
     response.headers.append(
       'Set-Cookie',
       `_T=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`,
     )
+    // _COMPANY — httpOnly company id
     response.headers.append(
       'Set-Cookie',
-      `_COMPANY=${encodeURIComponent(user?.company_id ?? '')}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`,
+      `_C=${encodeURIComponent(user?.company_id ?? '')}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`,
+    )
+    // _USER — non-httpOnly, encrypted via securedEncrypt (AES-256-CBC + HMAC-SHA3-512)
+    // Client decrypts via encrypter-client.ts's securedDecrypt for auth state + user info.
+    const encryptedUser = securedEncrypt({
+      id: user?.id,
+      name: user?.name,
+      email: user?.email,
+      whatsapp: user?.whatsapp,
+      role: user?.role,
+      company_id: user?.company_id,
+      company_name: user?.company_name,
+      created_at: user?.created_at,
+    })
+    response.headers.append(
+      'Set-Cookie',
+      `_U=${encodeURIComponent(encryptedUser)}; Path=/; SameSite=Lax; Max-Age=${maxAge}`,
     )
 
     return response

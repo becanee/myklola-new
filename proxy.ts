@@ -8,15 +8,24 @@ const PROTECTED_PREFIXES = ['/client', '/admin']
 function clearAuthCookies(): NextResponse {
   const resp = NextResponse.json({})
   resp.cookies.set('_T', '', { path: '/', maxAge: 0 })
-  resp.cookies.set('_COMPANY', '', { path: '/', maxAge: 0 })
+  resp.cookies.set('_C', '', { path: '/', maxAge: 0 })
   return resp
 }
 
 export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname
 
-  // Skip protection for auth pages and public routes
-  if (path.startsWith('/authentication')) return null
+  // If user hits /authentication while already logged in → redirect to /client
+  if (path.startsWith('/authentication')) {
+    const token = request.cookies.get('_T')?.value
+    if (token) {
+      const result = await verifyJwtDetailed(token)
+      if (result.ok) {
+        return NextResponse.redirect(new URL('/client', request.url))
+      }
+    }
+    return null
+  }
 
   // Check if this route is protected
   const isProtected = PROTECTED_PREFIXES.some(prefix => path.startsWith(prefix))
@@ -43,5 +52,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/client/:path*', '/admin/:path*'],
+  matcher: ['/client/:path*', '/admin/:path*', '/authentication'],
 }
