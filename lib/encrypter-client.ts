@@ -4,7 +4,7 @@ import CryptoJS from 'crypto-js';
 import { sha3_512 } from 'js-sha3';
 
 const CRY_PUBKEY = process.env.NEXT_PUBLIC_CRY_PUBKEY ?? '';
-const CRY_SECRETKEY = process.env.CRY_SECRETKEY ?? '';
+const CRY_SECRETKEY = process.env.NEXT_PUBLIC_CRY_SECRETKEY ?? '';
 
 // ─── byte helpers ───
 

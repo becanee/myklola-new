@@ -14,10 +14,15 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/motion/tabs";
+import { useRef, useState } from "react";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/motion/tabs";
 import { Input } from "@/components/motion/input";
-import { Turnstile } from "@marsidev/react-turnstile";
+import { Turnstile, TurnstileInstance } from "@marsidev/react-turnstile";
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
@@ -87,45 +92,77 @@ interface Field {
 
 const loginFields: Field[] = [
   {
-    label: "Email", type: "email", placeholder: "nama@perusahaan.com",
-    autoComplete: "email", icon: Mail, key: "email",
+    label: "Email",
+    type: "email",
+    placeholder: "nama@perusahaan.com",
+    autoComplete: "email",
+    icon: Mail,
+    key: "email",
     validate: validateEmail,
   },
   {
-    label: "Password", type: "password", placeholder: "••••••••",
-    autoComplete: "current-password", icon: Lock, key: "password",
+    label: "Password",
+    type: "password",
+    placeholder: "••••••••",
+    autoComplete: "current-password",
+    icon: Lock,
+    key: "password",
     validate: (v) => (!v ? "Password wajib diisi" : ""),
   },
 ];
 
 const registerFields: Field[] = [
   {
-    label: "Nama lengkap", type: "text", placeholder: "Nama Anda",
-    autoComplete: "name", icon: User, key: "name",
+    label: "Nama lengkap",
+    type: "text",
+    placeholder: "Nama Anda",
+    autoComplete: "name",
+    icon: User,
+    key: "name",
     validate: (v) => (!v ? "Nama wajib diisi" : ""),
   },
   {
-    label: "Email", type: "email", placeholder: "nama@perusahaan.com",
-    autoComplete: "email", icon: Mail, key: "email",
+    label: "Email",
+    type: "email",
+    placeholder: "nama@perusahaan.com",
+    autoComplete: "email",
+    icon: Mail,
+    key: "email",
     validate: validateEmail,
   },
   {
-    label: "WhatsApp", type: "tel", placeholder: "08xxxxxxxxxx",
-    autoComplete: "tel", icon: Phone, key: "whatsapp",
+    label: "WhatsApp",
+    type: "tel",
+    placeholder: "08xxxxxxxxxx",
+    autoComplete: "tel",
+    icon: Phone,
+    key: "whatsapp",
     validate: validateWhatsapp,
   },
   {
-    label: "Perusahaan", type: "text", placeholder: "Nama perusahaan (opsional)",
-    autoComplete: "organization", icon: Building2, key: "company_name",
+    label: "Perusahaan",
+    type: "text",
+    placeholder: "Nama perusahaan (opsional)",
+    autoComplete: "organization",
+    icon: Building2,
+    key: "company_name",
   },
   {
-    label: "Password", type: "password", placeholder: "Minimal 6 karakter",
-    autoComplete: "new-password", icon: Lock, key: "password",
+    label: "Password",
+    type: "password",
+    placeholder: "Minimal 6 karakter",
+    autoComplete: "new-password",
+    icon: Lock,
+    key: "password",
     validate: validatePassword,
   },
   {
-    label: "Konfirmasi password", type: "password", placeholder: "Ulangi password",
-    autoComplete: "new-password", icon: CheckCircle, key: "confirm",
+    label: "Konfirmasi password",
+    type: "password",
+    placeholder: "Ulangi password",
+    autoComplete: "new-password",
+    icon: CheckCircle,
+    key: "confirm",
     validate: (v, all) => {
       if (!v) return "Konfirmasi wajib diisi";
       if (v !== all?.password) return "Password tidak cocok";
@@ -172,7 +209,11 @@ function FormField({
             aria-label={showPassword ? "Sembunyikan" : "Tampilkan"}
             className="grid size-11 place-items-center text-muted-foreground hover:text-foreground transition-colors"
           >
-            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            {showPassword ? (
+              <EyeOff className="size-4" />
+            ) : (
+              <Eye className="size-4" />
+            )}
           </button>
         ) : undefined
       }
@@ -182,7 +223,13 @@ function FormField({
 }
 
 /* ─── tab content wrapper ─── */
-function AnimatedTabContent({ value, children }: { value: string; children: React.ReactNode }) {
+function AnimatedTabContent({
+  value,
+  children,
+}: {
+  value: string;
+  children: React.ReactNode;
+}) {
   return (
     <TabsContent value={value}>
       <AnimatePresence mode="wait">
@@ -204,18 +251,28 @@ function AnimatedTabContent({ value, children }: { value: string; children: Reac
 export default function LoginForm() {
   const router = useRouter();
   const [tab, setTab] = useState("login");
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
 
   /* login state */
   const [login, setLogin] = useState({ email: "", password: "" });
   const [showLoginPass, setShowLoginPass] = useState(false);
   const [loginErr, setLoginErr] = useState<string | null>(null);
   const [loginBusy, setLoginBusy] = useState(false);
-  const [loginFieldErrs, setLoginFieldErrs] = useState<Record<string, string>>({});
-  const [loginTurnstileToken, setLoginTurnstileToken] = useState<string | null>(null);
+  const [loginFieldErrs, setLoginFieldErrs] = useState<Record<string, string>>(
+    {},
+  );
+  const [loginTurnstileToken, setLoginTurnstileToken] = useState<string | null>(
+    null,
+  );
 
   /* register state */
   const [reg, setReg] = useState({
-    name: "", email: "", whatsapp: "", company_name: "", password: "", confirm: "",
+    name: "",
+    email: "",
+    whatsapp: "",
+    company_name: "",
+    password: "",
+    confirm: "",
   });
   const [showRegPass, setShowRegPass] = useState(false);
   const [agree, setAgree] = useState(false);
@@ -269,8 +326,11 @@ export default function LoginForm() {
       // Success — redirect to dashboard
       router.push("/client");
     } catch (err) {
-      setLoginErr(err instanceof Error ? err.message : "Terjadi kesalahan. Coba lagi.");
+      setLoginErr(
+        err instanceof Error ? err.message : "Terjadi kesalahan. Coba lagi.",
+      );
     } finally {
+      turnstileRef.current?.reset();
       setLoginBusy(false);
     }
   };
@@ -281,7 +341,9 @@ export default function LoginForm() {
 
     // Validate agree
     if (!agree) {
-      setRegErr("Anda harus menyetujui Syarat & Ketentuan dan Kebijakan Privasi.");
+      setRegErr(
+        "Anda harus menyetujui Syarat & Ketentuan dan Kebijakan Privasi.",
+      );
       return;
     }
 
@@ -329,8 +391,11 @@ export default function LoginForm() {
 
       setRegSuccess(true);
     } catch (err) {
-      setRegErr(err instanceof Error ? err.message : "Terjadi kesalahan. Coba lagi.");
+      setRegErr(
+        err instanceof Error ? err.message : "Terjadi kesalahan. Coba lagi.",
+      );
     } finally {
+      turnstileRef.current?.reset();
       setRegBusy(false);
     }
   };
@@ -373,6 +438,7 @@ export default function LoginForm() {
               {/* Turnstile captcha */}
               {TURNSTILE_SITE_KEY && (
                 <Turnstile
+                  ref={turnstileRef}
                   siteKey={TURNSTILE_SITE_KEY}
                   onSuccess={(t) => setLoginTurnstileToken(t)}
                   onExpire={() => setLoginTurnstileToken(null)}
@@ -447,6 +513,7 @@ export default function LoginForm() {
                   {/* Turnstile captcha */}
                   {TURNSTILE_SITE_KEY && (
                     <Turnstile
+                      ref={turnstileRef}
                       siteKey={TURNSTILE_SITE_KEY}
                       onSuccess={(t) => setTurnstileToken(t)}
                       onExpire={() => setTurnstileToken(null)}
@@ -464,11 +531,17 @@ export default function LoginForm() {
                     />
                     <span className="leading-5">
                       Saya menyetujui{" "}
-                      <Link href="/terms" className="text-[#0B3464] hover:underline">
+                      <Link
+                        href="/terms"
+                        className="text-[#0B3464] hover:underline"
+                      >
                         Syarat & Ketentuan
                       </Link>{" "}
                       dan{" "}
-                      <Link href="/privacy" className="text-[#0B3464] hover:underline">
+                      <Link
+                        href="/privacy"
+                        className="text-[#0B3464] hover:underline"
+                      >
                         Kebijakan Privasi
                       </Link>
                     </span>

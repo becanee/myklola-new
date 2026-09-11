@@ -2,9 +2,11 @@
 
 import {
   Building2,
+  ChevronDown,
   Command,
   FileStack,
   LayoutGrid,
+  LogOut,
   MessageSquare,
   PanelLeft,
   Search,
@@ -15,9 +17,9 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   AnimatedSidebar as _Sidebar,
   AnimatedSidebarClose,
@@ -38,8 +40,8 @@ import {
   AnimatedSidebarRail,
   AnimatedSidebarTrigger,
 } from "@/components/motion/animated-sidebar";
+import { getUserFromCookie } from "@/lib/utils";
 
-// forwardRef HTMLElement typing mismatch with RSC — cast
 const AnimatedSidebar = _Sidebar as React.FC<{
   side?: "left" | "right";
   variant?: "sidebar" | "floating" | "inset";
@@ -92,8 +94,27 @@ function matchPath(pathname: string, href?: string, children?: NavItem[]) {
 
 export default function Sidebar({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [active, setActive] = useState("Dashboard");
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const user = getUserFromCookie();
+  const initials = user?.name
+    ? String(user.name).charAt(0).toUpperCase()
+    : "?";
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/v1/logout", { method: "POST" });
+    } catch { /* noop */ }
+    // Clear remaining client-side cookies
+    document.cookie = "_T=; path=/; max-age=0";
+    document.cookie = "_C=; path=/; max-age=0";
+    document.cookie = "_U=; path=/; max-age=0";
+    router.push("/");
+  };
 
   return (
     <AnimatedSidebarProvider className="h-screen min-h-0">
@@ -220,14 +241,14 @@ export default function Sidebar({ children }: { children: ReactNode }) {
             className="flex min-h-11 w-full items-center gap-3 overflow-hidden rounded-xl p-1 text-left outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
           >
             <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#0B3464] text-xs font-semibold text-white">
-              KB
+              {initials}
             </span>
             <span className="min-w-0 flex-1 group-data-[state=collapsed]/sidebar:hidden">
               <span className="block truncate text-sm font-medium text-foreground">
-                Kevin Budiman
+                {String(user?.name ?? "")}
               </span>
               <span className="block truncate text-xs text-muted-foreground">
-                kevin@klola.id
+                {String(user?.email ?? "")}
               </span>
             </span>
           </button>
@@ -243,14 +264,78 @@ export default function Sidebar({ children }: { children: ReactNode }) {
         <AnimatedSidebarRail />
       </AnimatedSidebar>
 
+      {/* Main area: header with user dropdown + content */}
       <AnimatedSidebarInset className="min-h-0 flex-1 bg-background">
-        <header className="flex h-16 shrink-0 items-center gap-4 border-border border-b px-6">
-          <AnimatedSidebarTrigger className="text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
-            <PanelLeft aria-hidden="true" className="size-4" />
-          </AnimatedSidebarTrigger>
-          <div className="h-5 w-px bg-border" />
-          <h1 className="text-sm font-medium text-foreground">{active}</h1>
+        <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-border border-b px-6">
+          <div className="flex items-center gap-4">
+            <AnimatedSidebarTrigger className="text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+              <PanelLeft aria-hidden="true" className="size-4" />
+            </AnimatedSidebarTrigger>
+            <div className="h-5 w-px bg-border" />
+            <h1 className="text-sm font-medium text-foreground">{active}</h1>
+          </div>
+
+          {/* User dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => setDropdownOpen((o) => !o)}
+              className="flex items-center gap-2 rounded-lg p-1.5 text-left outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#0B3464] text-xs font-semibold text-white">
+                {initials}
+              </span>
+              <span className="hidden min-w-0 sm:block">
+                <span className="block truncate text-sm font-medium text-foreground">
+                  {String(user?.name ?? "")}
+                </span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  {String(user?.role ?? "")}
+                </span>
+              </span>
+              <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+            </button>
+
+            {dropdownOpen && (
+              <>
+                {/* Backdrop to close */}
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setDropdownOpen(false)}
+                />
+                <div className="absolute right-0 top-full z-50 mt-1 w-56 overflow-hidden rounded-xl border border-border/50 bg-popover shadow-lg">
+                  <div className="border-b border-border/40 px-3 py-2.5">
+                    <p className="truncate text-sm font-medium text-foreground">
+                      {String(user?.name ?? "")}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {String(user?.email ?? "")}
+                    </p>
+                  </div>
+                  <div className="p-1">
+                    <Link
+                      href="/client/settings"
+                      onClick={() => setDropdownOpen(false)}
+                      className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+                    >
+                      <Settings className="size-4" />
+                      Pengaturan
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+                    >
+                      <LogOut className="size-4" />
+                      Keluar
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </header>
+
         <div className="flex min-h-0 flex-1 overflow-auto">{children}</div>
       </AnimatedSidebarInset>
     </AnimatedSidebarProvider>
