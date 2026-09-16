@@ -45,9 +45,9 @@ export async function loginUser(input: LoginInput): Promise<{
   const user = result[0] as UserRow & { password: string; password_hash?: string | null };
 
   // Check role !== "ONBOARD"
-  if (user.role === 'ONBOARD') {
-    return { token: null, user: null, requiresReset: true };
-  }
+  // if (user.role === 'ONBOARD') {
+  //   return { token: null, user: null, requiresReset: true };
+  // }
 
   // Verify password via SHA-256 comparison against password_hash column
   const providedHash = hashPassword(input.password);
