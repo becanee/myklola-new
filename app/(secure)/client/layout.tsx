@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import Sidebar from "@/components/sidebar";
+import SidebarClient from "@/components/sidebar-client";
 
 export default function ClientLayout({ children }: { children: ReactNode }) {
-  return <Sidebar>{children}</Sidebar>;
+  return <SidebarClient>{children}</SidebarClient>;
 }
