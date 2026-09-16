@@ -62,16 +62,16 @@ interface NavItem {
 const navigation: NavItem[] = [
   { label: "Dashboard", icon: LayoutGrid, href: "/client" },
   { label: "Tiket", icon: FileStack, href: "/client/tickets" },
-  {
-    label: "Manajemen",
-    icon: Building2,
-    href: "/client/companies",
-    children: [
-      { label: "Perusahaan", icon: Building2, href: "/client/companies" },
-      { label: "Tim", icon: Users, href: "/client/team" },
-      { label: "Proyek", icon: Target, href: "/client/projects" },
-    ],
-  },
+  // {
+  //   label: "Manajemen",
+  //   icon: Building2,
+  //   href: "/client/companies",
+  //   children: [
+  //     { label: "Perusahaan", icon: Building2, href: "/client/companies" },
+  //     { label: "Tim", icon: Users, href: "/client/team" },
+  //     { label: "Proyek", icon: Target, href: "/client/projects" },
+  //   ],
+  // },
 ];
 
 const quickLinks: NavItem[] = [
@@ -92,7 +92,7 @@ function matchPath(pathname: string, href?: string, children?: NavItem[]) {
   return false;
 }
 
-export default function Sidebar({ children }: { children: ReactNode }) {
+export default function SidebarClient({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [active, setActive] = useState("Dashboard");
@@ -143,7 +143,7 @@ export default function Sidebar({ children }: { children: ReactNode }) {
         </AnimatedSidebarHeader>
 
         <AnimatedSidebarContent className="px-2 pt-1">
-          <AnimatedSidebarGroup className="pb-2">
+          {/* <AnimatedSidebarGroup className="pb-2">
             <AnimatedSidebarGroupContent>
               <AnimatedSidebarMenu>
                 {topBar.map((item) => (
@@ -160,7 +160,7 @@ export default function Sidebar({ children }: { children: ReactNode }) {
                 ))}
               </AnimatedSidebarMenu>
             </AnimatedSidebarGroupContent>
-          </AnimatedSidebarGroup>
+          </AnimatedSidebarGroup> */}
 
           <AnimatedSidebarGroup className="pt-1">
             <AnimatedSidebarGroupLabel>Workspace</AnimatedSidebarGroupLabel>
@@ -211,7 +211,7 @@ export default function Sidebar({ children }: { children: ReactNode }) {
             </AnimatedSidebarGroupContent>
           </AnimatedSidebarGroup>
 
-          <AnimatedSidebarGroup className="pt-1">
+          {/* <AnimatedSidebarGroup className="pt-1">
             <AnimatedSidebarGroupLabel>Tiket Support</AnimatedSidebarGroupLabel>
             <AnimatedSidebarGroupContent>
               <AnimatedSidebarMenu>
@@ -232,10 +232,10 @@ export default function Sidebar({ children }: { children: ReactNode }) {
                 })}
               </AnimatedSidebarMenu>
             </AnimatedSidebarGroupContent>
-          </AnimatedSidebarGroup>
+          </AnimatedSidebarGroup> */}
         </AnimatedSidebarContent>
 
-        <AnimatedSidebarFooter className="gap-3 border-t border-border/40 p-3">
+        {/* <AnimatedSidebarFooter className="gap-3 border-t border-border/40 p-3">
           <button
             type="button"
             className="flex min-h-11 w-full items-center gap-3 overflow-hidden rounded-xl p-1 text-left outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
@@ -259,7 +259,7 @@ export default function Sidebar({ children }: { children: ReactNode }) {
           >
             Pengaturan
           </AnimatedSidebarMenuButton>
-        </AnimatedSidebarFooter>
+        </AnimatedSidebarFooter> */}
 
         <AnimatedSidebarRail />
       </AnimatedSidebar>
