@@ -21,13 +21,15 @@ export async function GET(request: NextRequest) {
       return failedResponse({ code: 401, message: 'Unauthorized — invalid session' });
     }
 
-    // 2. Get user id from _U cookie
+    // 2. Get user id & role from _U cookie
     const encryptedUser = request.cookies.get('_U')?.value;
-    let userId = '';
+    let userId: number | null = null;
+    let userRole: string | null = null;
     if (encryptedUser) {
       try {
         const user = securedDecrypt<Record<string, unknown>>(decodeURIComponent(encryptedUser));
-        if (user?.id) userId = String(user.id);
+        if (user?.id) userId = Number(user.id);
+        if (user?.role) userRole = String(user.role);
       } catch {
         // fallback
       }
@@ -36,20 +38,23 @@ export async function GET(request: NextRequest) {
     // 3. Get company_id from _C cookie
     const companyId = request.cookies.get('_C')?.value ?? '';
 
-    // 4. Query tickets filtered by company_id and created_by
-    const rows = await db
-      .select()
-      .from(tickets)
-      .where(
-        companyId && userId
-          ? eq(tickets.company_id, companyId) && eq(tickets.created_by, userId)
-          : companyId
-            ? eq(tickets.company_id, companyId)
-            : userId
-              ? eq(tickets.created_by, userId)
-              : undefined,
-      )
-      .orderBy(desc(tickets.created_at));
+    // 4. Superadmin sees all tickets; others filtered by company & creator
+    const isSuperadmin = userRole === 'Superadmin';
+    const rows = isSuperadmin
+      ? await db.select().from(tickets).orderBy(desc(tickets.created_at))
+      : await db
+          .select()
+          .from(tickets)
+          .where(
+            companyId && userId
+              ? eq(tickets.company_id, companyId) && eq(tickets.created_by, userId)
+              : companyId
+                ? eq(tickets.company_id, companyId)
+                : userId
+                  ? eq(tickets.created_by, userId)
+                  : undefined,
+          )
+          .orderBy(desc(tickets.created_at));
 
     return successResponse({
       code: 200,
@@ -82,8 +87,8 @@ export async function POST(request: NextRequest) {
     // 2. Read _C cookie for company_id
     const companyId = request.cookies.get('_C')?.value ?? '';
 
-    // 3. Get created_by from JWT payload
-    const createdBy = String(jwtResultUser?.id ?? '');
+    // 3. Get created_by from JWT payload — integer FK to clients.id
+    const createdBy = Number(jwtResultUser?.id) || null;
 
     // 4. Parse multipart form data
     const formData = await request.formData();
@@ -127,7 +132,7 @@ export async function POST(request: NextRequest) {
         priority: priority as any,
         description: description || null,
         attachments: attachments.length > 0 ? attachments : null,
-        created_by: createdBy || null,
+        created_by: createdBy,
       })
       .returning({ id: tickets.id });
 

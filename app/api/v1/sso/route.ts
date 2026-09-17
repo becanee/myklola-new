@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
 
     const data = apiResult.data;
 
-    // Find or create member in client_members table
+    // Find or create member in clients table
     const member = await findOrCreateMember(data);
 
     if (!member) {
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // All fields from client_members for JWT + _U cookie
+    // All fields from clients table for JWT + _U cookie
     const companyId = data.klola_id?.[0] ?? null;
     const user = {
       id: Number(data.id),

@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from '@/drizzle/db';
-import { clientMembers } from '@/drizzle/schemas/client_members';
+import { clientMembers } from '@/drizzle/schemas/clients';
 
 /* ─── external API types ─── */
 
@@ -179,7 +179,8 @@ export async function fetchTokenFromExternalAPI(
   formData.append('wstoken', wstoken);
   formData.append('scope', scope);
 
-  const res = await fetch('https://api.klola.app/auth/token', {
+  const baseApi = process.env.SSO_API_URL ?? 'https://api.klola.app';
+  const res = await fetch(`${baseApi}/auth/token`, {
     method: 'POST',
     headers: { lang: 'en', 'x-scope': scope },
     body: formData,

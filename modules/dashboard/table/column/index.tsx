@@ -103,4 +103,12 @@ export const ticketColumns: TableColumn<Ticket>[] = [
       </span>
     ),
   },
+  {
+    key: "action",
+    header: "Action",
+    width: "80px",
+    cell: () => (
+      <span className="inline-flex items-center justify-center w-full" />
+    ),
+  },
 ];

@@ -1,30 +1,63 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { Table } from "@/components/motion/table";
-import { ticketColumns, type Ticket } from "./column";
 import TicketDetailSheet from "@/components/ticket-detail-sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ExternalLink, Eye, Menu } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useMemo, useRef, useState } from "react";
+import { ticketColumns, type Ticket } from "./column";
 
 export function AllTicketsTable({ data }: { data: Ticket[] }) {
+  const router = useRouter();
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const openDropdownId = useRef<string | null>(null);
 
   const columns = useMemo(
     () =>
-      ticketColumns.map((col) => ({
-        ...col,
-        cell: (row: Ticket) => (
-          <button
-            type="button"
-            onClick={() => setSelectedTicket(row)}
-            className="flex w-full items-center truncate text-left outline-none"
-          >
-            {col.cell
-              ? col.cell(row)
-              : <span>{String((row as Record<string, unknown>)[col.key] ?? "")}</span>}
-          </button>
-        ),
-      })),
-    [],
+      ticketColumns.map((col) => {
+        if (col.key === "action") {
+          return {
+            ...col,
+            cell: (row: Ticket) => (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      openDropdownId.current = row.id;
+                    }}
+                    className="inline-flex items-center justify-center w-full outline-none"
+                  >
+                    <span className="inline-flex items-center justify-center size-7 rounded-md transition-colors hover:bg-muted">
+                      <Menu className="size-3.5 text-muted-foreground" />
+                    </span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40">
+                  <DropdownMenuItem onClick={() => setSelectedTicket(row)}>
+                    <Eye className="size-3.5 mr-2" />
+                    View
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => router.push(`/tickets/${row.id}`)}
+                  >
+                    <ExternalLink className="size-3.5 mr-2" />
+                    Detail
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ),
+          };
+        }
+        return col;
+      }),
+    [router],
   );
 
   return (
@@ -47,7 +80,9 @@ export function AllTicketsTable({ data }: { data: Ticket[] }) {
       <TicketDetailSheet
         ticket={selectedTicket}
         open={!!selectedTicket}
-        onOpenChange={(open) => { if (!open) setSelectedTicket(null); }}
+        onOpenChange={(open) => {
+          if (!open) setSelectedTicket(null);
+        }}
       />
     </div>
   );

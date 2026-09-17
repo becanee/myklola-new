@@ -1,2 +1,3 @@
-export * from "./schemas/client_members";
+export * from "./schemas/clients";
 export * from "./schemas/tickets";
+export * from "./schemas/users";

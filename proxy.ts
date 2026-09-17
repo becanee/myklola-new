@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifyJwtDetailed } from "@/lib/jwt";
+import { securedDecrypt } from "@/lib/encrypter-server";
 
 const PROTECTED_PREFIXES = ["/admin"];
 
@@ -15,7 +16,7 @@ function clearAuthCookies(): NextResponse {
 export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
-  // If user hits /authentication while already logged in → redirect to /client
+  // If user hits /forbidden while already logged in — redirect to /
   if (path.startsWith("/forbidden")) {
     const token = request.cookies.get("_T")?.value;
     if (token) {
@@ -27,41 +28,40 @@ export async function proxy(request: NextRequest) {
     return null;
   }
 
+  // Check if this route is protected
+  const isProtected = PROTECTED_PREFIXES.some((prefix) =>
+    path.startsWith(prefix),
+  );
+
   // Route "/" — require _T JWT cookie, otherwise redirect /forbidden
-  if (path === "/") {
+  if (path === "/" || isProtected) {
     const token = request.cookies.get("_T")?.value;
     if (!token) {
       return NextResponse.redirect(new URL("/forbidden", request.url));
     }
+
     const result = await verifyJwtDetailed(token);
     if (!result.ok) {
       clearAuthCookies();
       return NextResponse.redirect(new URL("/forbidden", request.url));
     }
+
+    // If user is CLIENT and trying to access /admin — redirect to /
+    if (isProtected) {
+      try {
+        const encryptedUser = request.cookies.get("_U")?.value;
+        if (encryptedUser) {
+          const user = securedDecrypt<{ role?: string }>(decodeURIComponent(encryptedUser));
+          if (user?.role === "CLIENT") {
+            return NextResponse.redirect(new URL("/", request.url));
+          }
+        }
+      } catch {
+        // fallback — allow access
+      }
+    }
+
     return null;
-  }
-
-  // Check if this route is protected
-  const isProtected = PROTECTED_PREFIXES.some((prefix) =>
-    path.startsWith(prefix),
-  );
-  if (!isProtected) return null;
-
-  // Read JWT cookie "_T"
-  const token = request.cookies.get("_T")?.value;
-  if (!token) {
-    const loginUrl = new URL("/forbidden", request.url);
-    loginUrl.searchParams.set("redirect", path);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // Detailed verification — distinguish expired from other failures
-  const result = await verifyJwtDetailed(token);
-  if (!result.ok) {
-    const loginUrl = new URL("/forbidden", request.url);
-    loginUrl.searchParams.set("redirect", path);
-    clearAuthCookies().headers.set("Location", loginUrl.toString());
-    return NextResponse.redirect(loginUrl);
   }
 
   return null;

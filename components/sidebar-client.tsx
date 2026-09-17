@@ -61,16 +61,6 @@ interface NavItem {
 const navigation: NavItem[] = [
   { label: "Dashboard", icon: LayoutGrid, href: "/" },
   { label: "Tickets", icon: FileStack, href: "/tickets" },
-  // {
-  //   label: "Manajemen",
-  //   icon: Building2,
-  //   href: "/client/companies",
-  //   children: [
-  //     { label: "Perusahaan", icon: Building2, href: "/client/companies" },
-  //     { label: "Tim", icon: Users, href: "/client/team" },
-  //     { label: "Proyek", icon: Target, href: "/client/projects" },
-  //   ],
-  // },
 ];
 
 function matchPath(pathname: string, href?: string, children?: NavItem[]) {
@@ -101,7 +91,7 @@ export default function SidebarClient({ children }: { children: ReactNode }) {
     document.cookie = "_T=; path=/; max-age=0";
     document.cookie = "_C=; path=/; max-age=0";
     document.cookie = "_U=; path=/; max-age=0";
-    router.push("/forbidden");
+    router.push("/login");
   };
 
   return (

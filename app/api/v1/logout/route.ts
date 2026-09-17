@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
   // const response = NextResponse.json({ ok: true })
 
   const baseUrl = process.env.APP_URL ?? request.nextUrl.origin;
-  const redirectUrl = new URL("/forbidden", baseUrl);
+  const redirectUrl = new URL("/login", baseUrl);
   const response = NextResponse.redirect(redirectUrl);
 
   // Clear all auth cookies

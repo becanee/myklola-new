@@ -84,12 +84,12 @@ export function NotFoundTerminal({
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3, delay: 0.4 }}
       >
-        Need help?{" "}
+        {" "}
         <Link
-          href="#"
+          href="/"
           className="font-medium text-[#0B3464] underline-offset-4 hover:underline"
         >
-          Contact administrator
+          Go Back
         </Link>
       </motion.p>
 

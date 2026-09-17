@@ -1,4 +1,6 @@
 import { pgEnum, pgTable, varchar, text, integer, timestamp, jsonb } from 'drizzle-orm/pg-core';
+import { clientMembers } from './clients';
+import { users } from './users';
 
 export const ticketCategoryEnum = pgEnum('ticket_category', ['General', 'Account', 'Incident', 'Bussiness', 'Payroll', 'Helpdesk']);
 export const ticketPriorityEnum = pgEnum('ticket_priority', ['Low', 'Medium', 'High', 'Urgent']);
@@ -26,8 +28,8 @@ export const tickets = pgTable(
     attachments: jsonb().array(),
     closed_avg: integer().notNull().default(0),
     created_at: timestamp({ mode: 'date', withTimezone: true }).notNull().defaultNow(),
-    created_by: text(),
+    created_by: integer().references(() => clientMembers.id),
     updated_at: timestamp({ mode: 'date', withTimezone: true }),
-    updated_by: text(),
+    updated_by: varchar({ length: 16 }).references(() => users.id),
   },
 );

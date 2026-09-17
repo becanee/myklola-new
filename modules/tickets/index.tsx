@@ -17,7 +17,7 @@ interface ApiTicket {
   attachments: unknown[] | null;
   closed_avg: number;
   created_at: string;
-  created_by: string | null;
+  created_by: number | null;
   updated_at: string | null;
   updated_by: string | null;
   assign_to: string;

@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Proxy (Middleware)**: Next.js Proxy (`proxy.ts`) — guards `/` and `/admin/*` with JWT; redirects to `/forbidden` when unauthenticated
 - **Language**: TypeScript (strict mode)
 - **Styling**: Tailwind CSS 4, PostCSS
-- **UI**: shadcn/ui (new-york style, lucide icons), Radix UI primitives, BeUI motion components (`animated-sidebar`, `table`, `select-morph`, `loader`, `input`, `button/base`)
+- **UI**: shadcn/ui (new-york style, lucide icons), Radix UI primitives, BeUI motion components (`animated-sidebar`, `animated-toast-stack`, `table`, `select-morph`, `loader`, `input`, `button/base`)
 - **Rich text editor**: TipTap (`@tiptap/react`, StarterKit, Underline)
 - **ORM**: Drizzle Kit + Drizzle ORM v1rc with PostgreSQL (`postgres` driver)
 - **Auth**: Custom JWT (`jose`, HS256) — verified from `_T` cookie; AES-256-CBC + HMAC-SHA3-512 encryption (`crypto-js` + `js-sha3`) for `_U` cookie
@@ -44,6 +44,7 @@ npx drizzle-kit push      # Push schema directly to database
 proxy.ts matcher: '/', '/admin/:path*', '/forbidden'
 
 /               → if !_T cookie → redirect /forbidden
+/forbidden      → if _T valid   → redirect back to /; else pass through
 /admin/*        → if !_T        → redirect /forbidden?redirect=<path>
 /forbidden      → always pass through
 ```
@@ -54,7 +55,7 @@ JWT is verified via `verifyJwtDetailed()` — distinguishes expired tokens from 
 
 ```
 POST /api/v1/logout   → clear _T, _C cookies
-GET  /api/v1/sso      → proxy external API → upsert client_members → JWT → cookies → 302 redirect
+GET  /api/v1/sso      → proxy external API → upsert clients → JWT → cookies → 302 redirect
 GET  /api/v1/tickets  → JWT check → query tickets filtered by company_id & created_by → sorted desc
 POST /api/v1/tickets  → JWT check → multipart form → validate → upload attachments to R2 → INSERT ticket
 ```
@@ -82,7 +83,7 @@ app/
 │   ├── page.tsx                # Dashboard (stats + latest tickets table)
 │   ├── tickets/page.tsx        # All tickets (filter bar + table)
 │   └── tickets/create/page.tsx # Create ticket form
-├── forbidden/page.tsx          # Access denied page
+├── forbidden/page.tsx          # Access denied page (redirects authed users to /)
 ├── layout.tsx                  # Root layout (3 fonts: Instrument Sans/Serif, JetBrains Mono)
 └── not-found.tsx               # Custom 404
 
@@ -105,10 +106,10 @@ lib/
 
 drizzle/
 ├── db.ts                       # DB singleton — globalThis guard to prevent pool leak on hot-reload
-├── schema.ts                   # Re-exports: client_members, tickets
+├── schema.ts                   # Re-exports: clients, tickets
 ├── drizzle.config.ts           # Config for drizzle-kit (out: ./drizzle/migrations)
 ├── schemas/
-│   ├── client_members.ts       # Rich profile data from external API (50+ columns)
+│   ├── clients.ts              # Rich profile data from external API (50+ columns)
 │   └── tickets.ts              # Tickets schema (KLTKT-{6digits} id, enums, jsonb attachments)
 
 components/
@@ -135,7 +136,7 @@ modules/
     ├── index.tsx               # Main form: subject input, category select, TipTap editor, file upload, priority radio
     ├── editor.tsx              # TipTap rich text (Bold, Italic, Underline, bullet/ordered lists)
     ├── priority-radio.tsx      # 4 radio cards (Low → Urgent) with spring indicator
-    └── upload.tsx              # Drag-and-drop file upload (PNG/JPG/WEBP/SVG, max 5, 25MB)
+    └── upload.tsx              # Drag-and-drop file upload (PNG/JPG/WEBP/SVG, max 5, 10MB total)
 ```
 
 ### Tickets Schema
@@ -180,7 +181,7 @@ Side sheet (`components/ticket-detail-sheet.tsx`) showing:
 - **API handler**: parse body/cookies → JWT verify → service → `successResponse()`/`failedResponse()`
 - **API responses**: `{ success, code, powered_by, message, data? }` via `lib/response.ts`
 - **ID format**: `KLTKT-{6 digits}` — random, generated via `$defaultFn` in schema
-- **SSO flow**: GET `?scope=&wstoken=` → external API → upsert `client_members` → JWT → cookies → 302 redirect
+- **SSO flow**: GET `?scope=&wstoken=` → external API → upsert `clients` → JWT → cookies → 302 redirect
 - **File storage**: Cloudflare R2 via `@computesdk/r2` — bucket path = `{companyId}/tickets/{timestamp}-{name}`
 - **DB singleton**: `drizzle/db.ts` — `globalThis` guard to prevent pool leak on hot-reload
 - **snake_case** in DB, **camelCase** in JS/TS — mapping in service layer
@@ -198,8 +199,10 @@ Both dashboard and tickets modules use an identical `Ticket` type and `ticketCol
 | `DATABASE_URL` | PostgreSQL connection string |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Turnstile widget key (public) |
 | `TURNSTILE_SECRET_KEY` | Turnstile server-side secret |
-| `NEXT_PUBLIC_CRY_PUBKEY` | AES-256 public key (client) |
 | `CRY_PUBKEY` | AES-256 public key (server) |
+| `CRY_SECRETKEY` | AES-256 + HMAC secret key (server) |
+| `NEXT_PUBLIC_CRY_PUBKEY` | AES-256 public key (client) |
+| `NEXT_PUBLIC_CRY_SECRETKEY` | AES-256 + HMAC secret key (client) |
 | `CRY_SECRETKEY` | AES-256 + HMAC secret key (server) |
 | `JWT_SECRET` | JWT signing secret (32+ byte hex) |
 | `NEXT_PUBLIC_POWERED_BY` | Brand name in API responses |
@@ -207,6 +210,7 @@ Both dashboard and tickets modules use an identical `Ticket` type and `ticketCol
 | `R2_ACCESS_KEY_ID` | Cloudflare R2 access key |
 | `R2_SECRET_ACCESS_KEY` | Cloudflare R2 secret key |
 | `R2_BUCKET` | Cloudflare R2 bucket name |
+| `APP_URL` | Public origin URL for VPS redirects (e.g. https://app.myklola.cloud) |
 
 ### Config Files
 

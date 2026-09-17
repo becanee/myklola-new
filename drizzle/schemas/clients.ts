@@ -1,7 +1,7 @@
 import { pgTable, serial, varchar, text, boolean, integer, jsonb, timestamp, index } from 'drizzle-orm/pg-core';
 
 export const clientMembers = pgTable(
-  'client_members',
+  'clients',
   {
     id: integer().primaryKey().notNull(),
     klola_ids: text().array().notNull().default([]), // array of company IDs
