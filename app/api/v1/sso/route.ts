@@ -112,8 +112,10 @@ export async function GET(request: NextRequest) {
     // const token = wstoken;
     const maxAge = 86400; // 24h
 
-    // Redirect to /client with cookies
-    const redirectUrl = new URL("/", request.url);
+    // Redirect to /client with cookies — use nextUrl to preserve the public host
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/";
+    redirectUrl.search = "";
     const response = NextResponse.redirect(redirectUrl);
 
     response.headers.append(
