@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { verifyJwtDetailed } from "@/lib/jwt";
 import { securedDecrypt } from "@/lib/encrypter-server";
 
-const PROTECTED_PREFIXES = ["/admin"];
+const PROTECTED_PREFIXES = ["/admin", "/tickets"];
 
 // Clear both auth cookies by setting Max-Age=0 with matching path
 function clearAuthCookies(): NextResponse {
