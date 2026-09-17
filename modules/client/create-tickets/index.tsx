@@ -32,7 +32,7 @@ export default function CreateTicketModule() {
     <div className="w-screen min-h-screen flex flex-col">
       <HeaderComp title="Tickets" path="Management > Tickets > Create" />
 
-      <div className="mx-auto w-full flex-1 px-4 py-6 -mt-16">
+      <div className="mx-auto w-full flex-1 px-2 py-6 -mt-16">
         {/* Form */}
         <div className="rounded-lg border border-border/40 bg-card p-6">
           <div className="space-y-5">

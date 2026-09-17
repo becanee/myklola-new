@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Table } from "@/components/motion/table";
 import { ticketColumns, type Ticket } from "./column";
+import TicketDetailSheet from "@/components/ticket-detail-sheet";
 
 const CATEGORIES = ["Technical", "Billing", "General", "Feature Request"];
 const PRIORITIES = ["Low", "Medium", "High", "Urgent"];
@@ -46,7 +47,26 @@ function buildTickets(count: number): Ticket[] {
 
 export default function LatestTicketsTable() {
   const data = useMemo(() => buildTickets(10), []);
-  const columns = useMemo(() => ticketColumns, []);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+
+  const columns = useMemo(
+    () =>
+      ticketColumns.map((col) => ({
+        ...col,
+        cell: (row: Ticket) => (
+          <button
+            type="button"
+            onClick={() => setSelectedTicket(row)}
+            className="flex w-full items-center truncate text-left outline-none"
+          >
+            {col.cell
+              ? col.cell(row)
+              : <span>{String((row as Record<string, unknown>)[col.key] ?? "")}</span>}
+          </button>
+        ),
+      })),
+    [],
+  );
 
   return (
     <div className="flex w-full flex-col">
@@ -64,6 +84,11 @@ export default function LatestTicketsTable() {
         height={400}
         rowHeight={48}
         className="rounded-xl border border-border/50"
+      />
+      <TicketDetailSheet
+        ticket={selectedTicket}
+        open={!!selectedTicket}
+        onOpenChange={(open) => { if (!open) setSelectedTicket(null); }}
       />
     </div>
   );

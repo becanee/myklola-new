@@ -13,7 +13,7 @@ const statCards = [
     label: "Total Tickets",
     key: "total",
     icon: FileStack,
-    color: "#0B3464",
+    color: "#0B3464", 
   },
   {
     label: "Open",
@@ -66,7 +66,7 @@ export default function TicketsModule() {
   return (
     <div className="w-screen min-h-screen flex flex-col">
       <HeaderComp title="Tickets" path="Management > Tickets" />
-      <div className="flex flex-1 flex-col p-4 -mt-14">
+      <div className="flex flex-1 flex-col p-2 -mt-14">
         <div className="rounded-lg border border-border/40 bg-card p-6">
           {/* Stats */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

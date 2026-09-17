@@ -16,9 +16,9 @@ export default function ClientModules() {
   const [user, setUser] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const stats = [
+  const stats = [ 
     {
-      label: "Company",
+      label: "Company ",
       value: user?.company_name,
       icon: BuildingComplex,
       color: "#0B3464",
@@ -61,7 +61,7 @@ export default function ClientModules() {
     <div className="w-screen min-h-screen flex flex-col">
       <HeaderComp />
 
-      <div className="flex flex-1 flex-col -mt-14 p-4 pb-16">
+      <div className="flex flex-1 flex-col -mt-14 p-2 pb-16">
         <div className="rounded-lg border border-border/40 bg-card p-6 ">
           {/* Stats */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
