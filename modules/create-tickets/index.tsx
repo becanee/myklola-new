@@ -70,7 +70,7 @@ export default function CreateTicketModule() {
         duration: 3200,
       });
 
-      // router.push("/tickets");
+      router.push("/tickets");
     } catch (err) {
       updateToast(loadingId, {
         status: "error",
