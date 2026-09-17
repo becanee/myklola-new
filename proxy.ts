@@ -46,8 +46,9 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/forbidden", request.url));
     }
 
-    // If user is CLIENT and trying to access /admin — redirect to /
-    if (isProtected) {
+    // Separate check: only block CLIENT from /admin (not /tickets)
+    const isAdminRoute = path.startsWith("/admin");
+    if (isAdminRoute) {
       try {
         const encryptedUser = request.cookies.get("_U")?.value;
         if (encryptedUser) {
