@@ -1,6 +1,6 @@
 export type ValidationResult = { valid: true } | { valid: false; errors: string[] };
 
-const CATEGORIES = ['General', 'Account', 'Incident'];
+const CATEGORIES = ['General', 'Account', 'Incident', 'Bussiness', 'Payroll', 'Helpdesk'];
 const PRIORITIES = ['Low', 'Medium', 'High', 'Urgent'];
 
 export function validatePayload(body: Record<string, unknown>): ValidationResult {
