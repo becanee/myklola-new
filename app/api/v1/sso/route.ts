@@ -112,10 +112,9 @@ export async function GET(request: NextRequest) {
     // const token = wstoken;
     const maxAge = 86400; // 24h
 
-    // Redirect to /client with cookies — use nextUrl to preserve the public host
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/";
-    redirectUrl.search = "";
+    // Redirect to /client with cookies — use APP_URL env if available (for VPS behind reverse proxy)
+    const baseUrl = process.env.APP_URL ?? request.nextUrl.origin;
+    const redirectUrl = new URL("/", baseUrl);
     const response = NextResponse.redirect(redirectUrl);
 
     response.headers.append(

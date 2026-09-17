@@ -86,8 +86,8 @@ USER node
 # Expose port 3000 to allow HTTP traffic
 EXPOSE 3000
 
-# Origin publik untuk URL share (set sesuai domain, mis. https://zipt.site)
-# ENV APP_URL=
+# Origin publik untuk URL share / redirect (set sesuai domain, mis. https://app.myklola.cloud)
+# ENV APP_URL=https://app.myklola.cloud
 
 # Start Next.js standalone server
 CMD ["node", "server.js"]
