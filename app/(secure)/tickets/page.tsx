@@ -1,4 +1,4 @@
-import TicketsModule from "@/modules/client/tickets";
+import TicketsModule from "@/modules/tickets";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

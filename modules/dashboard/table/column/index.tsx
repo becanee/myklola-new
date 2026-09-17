@@ -8,26 +8,38 @@ export type Ticket = {
   ticket_id: string;
   subject: string;
   category: string;
-  status: "open" | "progress" | "done";
+  status: string; // 'Open' | 'Pending' | 'Action Required' | 'Investigate' | 'Resolved' | 'Closed'
   priority: string;
   created_at: string;
   updated_at: string;
+  assign_to: string;
 };
 
-export const STATUS_STYLES: Record<Ticket["status"], string> = {
-  open: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-  progress: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-  done: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+const STATUS_STYLES: Record<string, string> = {
+  Open: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  Pending: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
+  "Action Required": "bg-orange-500/10 text-orange-600 dark:text-orange-400",
+  Investigate: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
+  Resolved: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  Closed: "bg-neutral-500/10 text-neutral-600 dark:text-neutral-400",
 };
 
-export function StatusBadge({ status }: { status: Ticket["status"] }) {
-  const label =
-    status === "progress" ? "In Progress" : status === "done" ? "Done" : "Open";
+const STATUS_LABELS: Record<string, string> = {
+  Open: "Open",
+  Pending: "Pending",
+  "Action Required": "Action Required",
+  Investigate: "Investigate",
+  Resolved: "Resolved",
+  Closed: "Closed",
+};
+
+export function StatusBadge({ status }: { status: string }) {
+  const label = STATUS_LABELS[status] ?? status;
   return (
     <span
       className={cn(
-        "rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
-        STATUS_STYLES[status],
+        "rounded-full px-2.5 py-0.5 text-xs font-medium",
+        STATUS_STYLES[status] ?? "bg-muted text-muted-foreground",
       )}
     >
       {label}
@@ -38,7 +50,7 @@ export function StatusBadge({ status }: { status: Ticket["status"] }) {
 export const ticketColumns: TableColumn<Ticket>[] = [
   {
     key: "ticket_id",
-    header: "ID Tiket",
+    header: "ID",
     sortable: true,
     width: "120px",
     cell: (row: Ticket) => (
@@ -49,7 +61,7 @@ export const ticketColumns: TableColumn<Ticket>[] = [
   },
   {
     key: "subject",
-    header: "Subjek",
+    header: "Subject",
     sortable: true,
     width: "1.8fr",
     cell: (row: Ticket) => (
@@ -58,7 +70,7 @@ export const ticketColumns: TableColumn<Ticket>[] = [
   },
   {
     key: "category",
-    header: "Kategori",
+    header: "Category",
     width: "120px",
     cell: (row: Ticket) => (
       <span className="text-muted-foreground">{row.category}</span>
@@ -68,12 +80,12 @@ export const ticketColumns: TableColumn<Ticket>[] = [
     key: "status",
     header: "Status",
     sortable: true,
-    width: "110px",
+    width: "140px",
     cell: (row: Ticket) => <StatusBadge status={row.status} />,
   },
   {
     key: "priority",
-    header: "Prioritas",
+    header: "Priority",
     width: "100px",
     cell: (row: Ticket) => (
       <span className="capitalize text-muted-foreground">{row.priority}</span>
@@ -81,7 +93,7 @@ export const ticketColumns: TableColumn<Ticket>[] = [
   },
   {
     key: "created_at",
-    header: "Dibuat",
+    header: "Created",
     sortable: true,
     align: "right",
     width: "130px",

@@ -60,7 +60,7 @@ export interface SsoApiResponse {
 }
 
 export interface SsoApiData {
-  id: number;
+  id: string;
   klola_id: string[];
   name: string;
   username: string;
@@ -109,6 +109,7 @@ function mapApiToDb(data: SsoApiData) {
   const e = data.employee ?? {};
   const ids = e.id ?? {};
   return {
+    id: data?.id ?? 0,
     klola_ids: data.klola_id ?? [],
     name: e.nama ?? data.name ?? '',
     username: e.nip ?? data.username ?? '',

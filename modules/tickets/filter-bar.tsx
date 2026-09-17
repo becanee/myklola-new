@@ -14,17 +14,22 @@ import Link from "next/link";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Semua Status" },
-  { value: "open", label: "Open" },
-  { value: "progress", label: "In Progress" },
-  { value: "done", label: "Done" },
+  { value: "Open", label: "Open" },
+  { value: "Pending", label: "Pending" },
+  { value: "Action Required", label: "Action Required" },
+  { value: "Investigate", label: "Investigate" },
+  { value: "Resolved", label: "Resolved" },
+  { value: "Closed", label: "Closed" },
 ] as const;
 
 const CATEGORY_OPTIONS = [
   { value: "all", label: "Semua Kategori" },
-  { value: "Technical", label: "Technical" },
-  { value: "Billing", label: "Billing" },
   { value: "General", label: "General" },
-  { value: "Feature Request", label: "Feature Request" },
+  { value: "Account", label: "Account" },
+  { value: "Incident", label: "Incident" },
+  { value: "Business", label: "Business" },
+  { value: "Payroll", label: "Payroll" },
+  { value: "Helpdesk", label: "Helpdesk" },
 ] as const;
 
 interface FilterBarProps {

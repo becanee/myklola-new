@@ -1,22 +1,31 @@
 "use client";
 
+import { useMemo } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import type { Ticket } from "@/modules/client/dashboard/table/column";
+import type { Ticket } from "@/modules/dashboard/table/column";
 
 interface TimelineStep {
   label: string;
   description?: string;
-  status: "done" | "current" | "upcoming";
 }
 
-const TIMELINE: TimelineStep[] = [
-  { label: "Submitted", description: "Ticket has been created", status: "done" },
-  { label: "Pending", description: "Awaiting initial review", status: "done" },
-  { label: "Action Required", description: "Additional information needed", status: "current" },
-  { label: "Investigate", description: "Under investigation by the team", status: "upcoming" },
-  { label: "Resolved / Closed / Rejected", status: "upcoming" },
+const ALL_STEPS: TimelineStep[] = [
+  { label: "Submitted", description: "Ticket has been created" },
+  { label: "Pending", description: "Awaiting initial review" },
+  { label: "Action Required", description: "Additional information needed" },
+  { label: "Investigate", description: "Under investigation by the team" },
+  { label: "Resolved / Closed" },
 ];
+
+const STATUS_INDEX: Record<string, number> = {
+  Open: 0,
+  Pending: 1,
+  "Action Required": 2,
+  Investigate: 3,
+  Resolved: 4,
+  Closed: 4,
+};
 
 const PRIORITY_STYLES: Record<string, string> = {
   Low: "bg-slate-100 text-slate-700 border-slate-200",
@@ -34,6 +43,17 @@ export default function TicketDetailSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const currentIdx = ticket ? (STATUS_INDEX[ticket.status] ?? 0) : 0;
+
+  const timeline = useMemo(
+    () =>
+      ALL_STEPS.map((step, i) => ({
+        ...step,
+        status: (i < currentIdx ? "done" : i === currentIdx ? "current" : "upcoming") as "done" | "current" | "upcoming",
+      })),
+    [currentIdx],
+  );
+
   if (!ticket) return null;
 
   return (
@@ -71,7 +91,7 @@ export default function TicketDetailSheet({
             </div>
             <div>
               <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Assigned to</p>
-              <p className="mt-1 text-sm text-foreground">—</p>
+              <p className="mt-1 text-sm text-foreground">{ticket.assign_to ? ticket.assign_to : "-"}</p>
             </div>
             <div>
               <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Created</p>
@@ -86,9 +106,8 @@ export default function TicketDetailSheet({
             </h3>
 
             <div className="space-y-0">
-              {TIMELINE.map((step, i) => (
+              {timeline.map((step, i) => (
                 <div key={step.label} className="flex gap-3">
-                  {/* Dot + line column */}
                   <div className="flex flex-col items-center">
                     <div
                       className={cn(
@@ -98,7 +117,7 @@ export default function TicketDetailSheet({
                         step.status === "upcoming" && "bg-border",
                       )}
                     />
-                    {i < TIMELINE.length - 1 && (
+                    {i < timeline.length - 1 && (
                       <div
                         className={cn(
                           "mt-1 w-px flex-1 min-h-[28px]",
@@ -108,8 +127,7 @@ export default function TicketDetailSheet({
                     )}
                   </div>
 
-                  {/* Content */}
-                  <div className={cn("pb-6", i === TIMELINE.length - 1 && "pb-0")}>
+                  <div className={cn("pb-6", i === timeline.length - 1 && "pb-0")}>
                     <p
                       className={cn(
                         "text-sm leading-tight",

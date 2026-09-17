@@ -15,10 +15,33 @@ import LatestTicketsTable from "./table";
 export default function ClientModules() {
   const [user, setUser] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [ticketCount, setTicketCount] = useState(0);
+  const [solvedCount, setSolvedCount] = useState(0);
 
-  const stats = [ 
+  useEffect(() => {
+    const u = getUserFromCookie();
+    setUser(u);
+
+    fetch("/api/v1/tickets")
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success && Array.isArray(json.data)) {
+          setTicketCount(json.data.length);
+          setSolvedCount(
+            json.data.filter(
+              (t: Record<string, unknown>) =>
+                t.status === "Resolved" || t.status === "Closed",
+            ).length,
+          );
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const stats = [
     {
-      label: "Company ",
+      label: "Company",
       value: user?.company_name,
       icon: BuildingComplex,
       color: "#0B3464",
@@ -31,23 +54,17 @@ export default function ClientModules() {
     },
     {
       label: "Total Tickets",
-      value: "7",
+      value: ticketCount,
       icon: Inbox,
       color: "#8B5CF6",
     },
     {
       label: "Solved Tickets",
-      value: "6",
+      value: solvedCount,
       icon: MessageCircleDashedCheck,
       color: "#10B981",
     },
   ];
-
-  useEffect(() => {
-    const u = getUserFromCookie();
-    setUser(u);
-    setLoading(false);
-  }, []);
 
   if (loading) {
     return (
@@ -56,7 +73,7 @@ export default function ClientModules() {
       </div>
     );
   }
-  
+
   return (
     <div className="w-screen min-h-screen flex flex-col">
       <HeaderComp />

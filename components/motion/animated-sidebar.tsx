@@ -1108,7 +1108,7 @@ export function AnimatedSidebarMenuButton({
 
   return href ? (
     <Link href={href} target={target}>
-      <motion.a
+      <motion.div
         rel={rel ?? (target === "_blank" ? "noreferrer noopener" : undefined)}
         aria-current={isActive ? "page" : undefined}
         aria-expanded={ariaExpanded}
@@ -1116,13 +1116,13 @@ export function AnimatedSidebarMenuButton({
         aria-label={panel.collapsed ? textLabel : undefined}
         title={panel.collapsed ? textLabel : undefined}
         tabIndex={disabled ? -1 : undefined}
-        onClick={select}
+        // onClick={select}
         whileTap={context.reduce || disabled ? undefined : { scale: 0.98 }}
         transition={SPRING_PRESS}
         className={interactiveClassName}
       >
         {content}
-      </motion.a>
+      </motion.div>
     </Link>
   ) : (
     <motion.button

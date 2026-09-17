@@ -1,4 +1,4 @@
-import CreateTicketModule from "@/modules/client/create-tickets";
+import CreateTicketModule from "@/modules/create-tickets";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

@@ -60,7 +60,7 @@ interface NavItem {
 
 const navigation: NavItem[] = [
   { label: "Dashboard", icon: LayoutGrid, href: "/" },
-  { label: "Tiket", icon: FileStack, href: "/tickets" },
+  { label: "Tickets", icon: FileStack, href: "/tickets" },
   // {
   //   label: "Manajemen",
   //   icon: Building2,
@@ -87,7 +87,7 @@ export default function SidebarClient({ children }: { children: ReactNode }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const user = getUserFromCookie();
+  const user: any = getUserFromCookie();
 
   const initials = user?.name ? String(user.name).charAt(0).toUpperCase() : "?";
 
@@ -152,7 +152,7 @@ export default function SidebarClient({ children }: { children: ReactNode }) {
           </AnimatedSidebarGroup> */}
 
           <AnimatedSidebarGroup className="pt-1">
-            <AnimatedSidebarGroupLabel>Workspace</AnimatedSidebarGroupLabel>
+            <AnimatedSidebarGroupLabel>Main Menu</AnimatedSidebarGroupLabel>
             <AnimatedSidebarGroupContent>
               <AnimatedSidebarMenu>
                 {navigation.map(
@@ -312,13 +312,12 @@ export default function SidebarClient({ children }: { children: ReactNode }) {
                   </div>
                   <div className="p-1">
                     <Link
-                      href="https://uat.klola.app"
-                      target="tab"
-                      onClick={() => setDropdownOpen(false)}
+                      href="#"
+                      onClick={handleLogout}
                       className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-foreground transition-colors hover:bg-muted"
                     >
                       <LogOut className="size-4" />
-                      Kembali
+                      Logout
                     </Link>
                     {/* <button
                       type="button"
@@ -335,7 +334,7 @@ export default function SidebarClient({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <div className="flex min-h-0 flex-1 overflow-auto">{children}</div>
+        <div className="flex min-h-0 flex-1 overflow-auto scrollbar-none">{children}</div>
         <Footer />
       </AnimatedSidebarInset>
     </AnimatedSidebarProvider>

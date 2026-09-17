@@ -3,7 +3,7 @@ import { pgTable, serial, varchar, text, boolean, integer, jsonb, timestamp, ind
 export const clientMembers = pgTable(
   'client_members',
   {
-    id: serial().primaryKey().notNull(),
+    id: integer().primaryKey().notNull(),
     klola_ids: text().array().notNull().default([]), // array of company IDs
     name: varchar({ length: 255 }).notNull(),
     username: varchar({ length: 100 }).notNull(),

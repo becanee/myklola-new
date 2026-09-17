@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
 const ALLOWED_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp", ".svg"];
 const MAX_FILES = 5;
-const MAX_TOTAL_BYTES = 25 * 1024 * 1024; // 25 MB
+const MAX_TOTAL_BYTES = 10 * 1024 * 1024; // 10 MB
 
 interface UploadedFile {
   id: string;
@@ -53,7 +53,7 @@ export default function FileUpload({
         errors.push(`Maksimal ${MAX_FILES} file.`);
       }
       if (totalBytes > MAX_TOTAL_BYTES) {
-        errors.push(`Total ukuran melebihi 25 MB.`);
+        errors.push(`Total ukuran melebihi 10 MB.`);
       }
 
       if (errors.length > 0) {
@@ -120,7 +120,7 @@ export default function FileUpload({
           Click to upload or drag and drop
         </p>
         <p className="text-xs text-muted-foreground">
-          PNG, JPG, WEBP, SVG &middot; max {MAX_FILES} images &middot; 25 MB total
+          PNG, JPG, WEBP, SVG &middot; max {MAX_FILES} images &middot; 10 MB total
         </p>
       </div>
 

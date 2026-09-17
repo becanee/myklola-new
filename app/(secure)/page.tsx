@@ -1,4 +1,4 @@
-import ClientModules from "@/modules/client/dashboard";
+import ClientModules from "@/modules/dashboard";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
