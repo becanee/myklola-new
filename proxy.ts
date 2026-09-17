@@ -3,6 +3,9 @@ import type { NextRequest } from "next/server";
 import { verifyJwtDetailed } from "@/lib/jwt";
 
 const PROTECTED_PREFIXES = ["/admin"];
+const ALLOW_ADMIN_DEV_BYPASS =
+  process.env.NODE_ENV === "development" ||
+  process.env.NEXT_PUBLIC_ALLOW_ADMIN_DEV_BYPASS === "true";
 
 // Clear both auth cookies by setting Max-Age=0 with matching path
 function clearAuthCookies(): NextResponse {
@@ -46,6 +49,10 @@ export async function proxy(request: NextRequest) {
     path.startsWith(prefix),
   );
   if (!isProtected) return null;
+
+  if (ALLOW_ADMIN_DEV_BYPASS) {
+    return null;
+  }
 
   // Read JWT cookie "_T"
   const token = request.cookies.get("_T")?.value;

@@ -17,6 +17,16 @@ function getStorage(): R2 | null {
   return r2({ accessKeyId, secretAccessKey, accountId });
 }
 
+export async function downloadAttachment(key: string) {
+  const bucket = process.env.R2_BUCKET ?? '';
+  const storage = getStorage();
+  if (!bucket || !storage) {
+    throw new Error('R2 storage is not configured');
+  }
+
+  return storage.download(bucket, key);
+}
+
 /**
  * Upload files to Cloudflare R2 and return their public URLs.
  * @param companyId - used as folder prefix
@@ -53,7 +63,7 @@ export async function uploadAttachments(
       key,
       name: file.name,
       size: file.buffer.length,
-      url: key,
+      url: `/api/v1/attachments?key=${encodeURIComponent(key)}`,
     });
   }
 

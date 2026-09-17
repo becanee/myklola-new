@@ -32,6 +32,7 @@ import {
   Settings,
   Sparkles,
   Target,
+  Users,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -73,6 +74,13 @@ const navigation: NavItem[] = [
   // },
 ];
 
+const adminNavigation: NavItem[] = [
+  { label: "Dashboard", icon: LayoutGrid, href: "/admin" },
+  { label: "Tickets", icon: FileStack, href: "/admin/tickets" },
+  { label: "Chat", icon: MessageSquare, href: "/admin/chat" },
+  { label: "Users", icon: Users, href: "/admin/users" },
+];
+
 function matchPath(pathname: string, href?: string, children?: NavItem[]) {
   if (href && pathname === href) return true;
   if (children) return children.some((c) => c.href && pathname === c.href);
@@ -86,6 +94,9 @@ export default function SidebarClient({ children }: { children: ReactNode }) {
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const currentNavigation = pathname.startsWith("/admin")
+    ? adminNavigation
+    : navigation;
 
   const user: any = getUserFromCookie();
 
@@ -155,7 +166,7 @@ export default function SidebarClient({ children }: { children: ReactNode }) {
             <AnimatedSidebarGroupLabel>Main Menu</AnimatedSidebarGroupLabel>
             <AnimatedSidebarGroupContent>
               <AnimatedSidebarMenu>
-                {navigation.map(
+                {currentNavigation.map(
                   ({ label, icon: Icon, href, children: navChildren }) => {
                     const isActive = matchPath(pathname, href, navChildren);
                     return (

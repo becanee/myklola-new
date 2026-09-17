@@ -1,30 +1,40 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Table } from "@/components/motion/table";
+import { TicketActionDropdown } from "@/components/ui/action-dropdown";
 import { ticketColumns, type Ticket } from "./column";
-import TicketDetailSheet from "@/components/ticket-detail-sheet";
 
 export function AllTicketsTable({ data }: { data: Ticket[] }) {
-  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const router = useRouter();
 
   const columns = useMemo(
-    () =>
-      ticketColumns.map((col) => ({
+    () => [
+      ...ticketColumns.map((col) => ({
         ...col,
         cell: (row: Ticket) => (
-          <button
-            type="button"
-            onClick={() => setSelectedTicket(row)}
-            className="flex w-full items-center truncate text-left outline-none"
-          >
+          <span className="flex w-full items-center truncate text-left outline-none">
             {col.cell
               ? col.cell(row)
               : <span>{String((row as Record<string, unknown>)[col.key] ?? "")}</span>}
-          </button>
+          </span>
         ),
       })),
-    [],
+      {
+        key: "action",
+        header: "Action",
+        width: "80px",
+        align: "center" as const,
+        cell: (row: Ticket) => (
+          <TicketActionDropdown
+            onViewDetail={() => router.push(`/tickets/${row.id}`)}
+            onEdit={() => router.push(`/tickets/${row.id}/edit`)}
+          />
+        ),
+      },
+    ],
+    [router],
   );
 
   return (
@@ -43,11 +53,6 @@ export function AllTicketsTable({ data }: { data: Ticket[] }) {
         height={400}
         rowHeight={48}
         className="rounded-xl border border-border/50"
-      />
-      <TicketDetailSheet
-        ticket={selectedTicket}
-        open={!!selectedTicket}
-        onOpenChange={(open) => { if (!open) setSelectedTicket(null); }}
       />
     </div>
   );
