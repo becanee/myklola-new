@@ -1,30 +1,9 @@
 "use client";
 
 import {
-  Building2,
-  ChevronDown,
-  Command,
-  FileStack,
-  LayoutGrid,
-  LogOut,
-  MessageSquare,
-  PanelLeft,
-  Search,
-  Settings,
-  Sparkles,
-  Target,
-  Users,
-  X,
-} from "lucide-react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import type { ReactNode } from "react";
-import { useRef, useState } from "react";
-import {
   AnimatedSidebar as _Sidebar,
   AnimatedSidebarClose,
   AnimatedSidebarContent,
-  AnimatedSidebarFooter,
   AnimatedSidebarGroup,
   AnimatedSidebarGroupContent,
   AnimatedSidebarGroupLabel,
@@ -41,6 +20,26 @@ import {
   AnimatedSidebarTrigger,
 } from "@/components/motion/animated-sidebar";
 import { getUserFromCookie } from "@/lib/utils";
+import {
+  ChevronDown,
+  Command,
+  FileStack,
+  LayoutGrid,
+  LogOut,
+  MessageSquare,
+  PanelLeft,
+  Search,
+  Settings,
+  Sparkles,
+  Target,
+  X,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import type { ReactNode } from "react";
+import { useRef, useState } from "react";
+import Footer from "./footer";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 const AnimatedSidebar = _Sidebar as React.FC<{
   side?: "left" | "right";
@@ -60,8 +59,8 @@ interface NavItem {
 }
 
 const navigation: NavItem[] = [
-  { label: "Dashboard", icon: LayoutGrid, href: "/client" },
-  { label: "Tiket", icon: FileStack, href: "/client/tickets" },
+  { label: "Dashboard", icon: LayoutGrid, href: "/" },
+  { label: "Tiket", icon: FileStack, href: "/tickets" },
   // {
   //   label: "Manajemen",
   //   icon: Building2,
@@ -72,18 +71,6 @@ const navigation: NavItem[] = [
   //     { label: "Proyek", icon: Target, href: "/client/projects" },
   //   ],
   // },
-];
-
-const quickLinks: NavItem[] = [
-  { label: "Semua tiket", icon: FileStack, href: "/client/tickets" },
-  { label: "Aktivitas terbaru", icon: FileStack, href: "/client/tickets/activity" },
-  { label: "Segmen", icon: Target, href: "/client/tickets/segments" },
-];
-
-const topBar: NavItem[] = [
-  { label: "Cari", icon: Search, href: "/client/search" },
-  { label: "AI Assistant", icon: Sparkles, href: "/client/ai" },
-  { label: "Inbox", icon: MessageSquare, badge: "4", href: "/client/inbox" },
 ];
 
 function matchPath(pathname: string, href?: string, children?: NavItem[]) {
@@ -101,14 +88,15 @@ export default function SidebarClient({ children }: { children: ReactNode }) {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const user = getUserFromCookie();
-  const initials = user?.name
-    ? String(user.name).charAt(0).toUpperCase()
-    : "?";
+
+  const initials = user?.name ? String(user.name).charAt(0).toUpperCase() : "?";
 
   const handleLogout = async () => {
     try {
       await fetch("/api/v1/logout", { method: "POST" });
-    } catch { /* noop */ }
+    } catch {
+      /* noop */
+    }
     // Clear remaining client-side cookies
     document.cookie = "_T=; path=/; max-age=0";
     document.cookie = "_C=; path=/; max-age=0";
@@ -125,15 +113,16 @@ export default function SidebarClient({ children }: { children: ReactNode }) {
       >
         <AnimatedSidebarHeader className="p-3 pb-2">
           <div className="flex min-h-11 items-center gap-3 overflow-hidden px-2">
-            <div className="grid size-7 shrink-0 place-items-center rounded-lg bg-[#0B3464] text-white">
-              <Command aria-hidden="true" className="size-4" />
-            </div>
+            {/* <div className="grid size-7 shrink-0 place-items-center">
+              <img src="/logo-dashboard.svg" alt="logo" />
+            </div> */}
             <Link
               href="/"
               className="flex min-w-0 flex-1 items-center gap-2 rounded-lg text-left outline-none focus-visible:ring-2 focus-visible:ring-ring group-data-[state=collapsed]/sidebar:hidden"
             >
-              <span className="truncate text-sm font-semibold text-foreground">
-                Klola Indonesia
+              <img src="/logo-dashboard.svg" className="w-24" alt="logo" />
+              <span className="truncate text-md font-semibold text-foreground mt-1 -ml-1">
+                HelpDesk
               </span>
             </Link>
             <AnimatedSidebarClose className="ml-auto text-muted-foreground hover:bg-muted md:hidden">
@@ -166,47 +155,53 @@ export default function SidebarClient({ children }: { children: ReactNode }) {
             <AnimatedSidebarGroupLabel>Workspace</AnimatedSidebarGroupLabel>
             <AnimatedSidebarGroupContent>
               <AnimatedSidebarMenu>
-                {navigation.map(({ label, icon: Icon, href, children: navChildren }) => {
-                  const isActive = matchPath(pathname, href, navChildren);
-                  return (
-                    <AnimatedSidebarMenuItem key={label}>
-                      <AnimatedSidebarMenuButton
-                        isActive={isActive}
-                        ariaExpanded={navChildren ? openSection === label : undefined}
-                        icon={<Icon className="size-4" />}
-                        href={href}
-                        onSelect={() => {
-                          if (navChildren) {
-                            setOpenSection((prev) => (prev === label ? null : label));
-                          } else {
-                            setActive(label);
+                {navigation.map(
+                  ({ label, icon: Icon, href, children: navChildren }) => {
+                    const isActive = matchPath(pathname, href, navChildren);
+                    return (
+                      <AnimatedSidebarMenuItem key={label}>
+                        <AnimatedSidebarMenuButton
+                          isActive={isActive}
+                          ariaExpanded={
+                            navChildren ? openSection === label : undefined
                           }
-                        }}
-                      >
-                        {label}
-                      </AnimatedSidebarMenuButton>
-                      {navChildren ? (
-                        <AnimatedSidebarMenuSub open={openSection === label}>
-                          {navChildren.map((child) => {
-                            const childActive = pathname === child.href;
-                            return (
-                              <AnimatedSidebarMenuSubItem key={child.label}>
-                                <AnimatedSidebarMenuSubButton
-                                  isActive={childActive}
-                                  href={child.href}
-                                  icon={<child.icon className="size-4" />}
-                                  onSelect={() => setActive(child.label)}
-                                >
-                                  {child.label}
-                                </AnimatedSidebarMenuSubButton>
-                              </AnimatedSidebarMenuSubItem>
-                            );
-                          })}
-                        </AnimatedSidebarMenuSub>
-                      ) : null}
-                    </AnimatedSidebarMenuItem>
-                  );
-                })}
+                          icon={<Icon className="size-4" />}
+                          href={href}
+                          onSelect={() => {
+                            if (navChildren) {
+                              setOpenSection((prev) =>
+                                prev === label ? null : label,
+                              );
+                            } else {
+                              setActive(label);
+                            }
+                          }}
+                        >
+                          {label}
+                        </AnimatedSidebarMenuButton>
+                        {navChildren ? (
+                          <AnimatedSidebarMenuSub open={openSection === label}>
+                            {navChildren.map((child) => {
+                              const childActive = pathname === child.href;
+                              return (
+                                <AnimatedSidebarMenuSubItem key={child.label}>
+                                  <AnimatedSidebarMenuSubButton
+                                    isActive={childActive}
+                                    href={child.href}
+                                    icon={<child.icon className="size-4" />}
+                                    onSelect={() => setActive(child.label)}
+                                  >
+                                    {child.label}
+                                  </AnimatedSidebarMenuSubButton>
+                                </AnimatedSidebarMenuSubItem>
+                              );
+                            })}
+                          </AnimatedSidebarMenuSub>
+                        ) : null}
+                      </AnimatedSidebarMenuItem>
+                    );
+                  },
+                )}
               </AnimatedSidebarMenu>
             </AnimatedSidebarGroupContent>
           </AnimatedSidebarGroup>
@@ -272,7 +267,7 @@ export default function SidebarClient({ children }: { children: ReactNode }) {
               <PanelLeft aria-hidden="true" className="size-4" />
             </AnimatedSidebarTrigger>
             <div className="h-5 w-px bg-border" />
-            <h1 className="text-sm font-medium text-foreground">{active}</h1>
+            {/* <h1 className="text-sm font-medium text-foreground">{active}</h1> */}
           </div>
 
           {/* User dropdown */}
@@ -283,14 +278,17 @@ export default function SidebarClient({ children }: { children: ReactNode }) {
               className="flex items-center gap-2 rounded-lg p-1.5 text-left outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
             >
               <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#0B3464] text-xs font-semibold text-white">
-                {initials}
+                <Avatar>
+                  <AvatarImage src={user?.avatar_url ?? ""} />
+                  <AvatarFallback>{initials}</AvatarFallback>
+                </Avatar>
               </span>
               <span className="hidden min-w-0 sm:block">
                 <span className="block truncate text-sm font-medium text-foreground">
                   {String(user?.name ?? "")}
                 </span>
                 <span className="block truncate text-xs text-muted-foreground">
-                  {String(user?.role ?? "")}
+                  {String(user?.pangkat ?? "")}
                 </span>
               </span>
               <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
@@ -314,21 +312,22 @@ export default function SidebarClient({ children }: { children: ReactNode }) {
                   </div>
                   <div className="p-1">
                     <Link
-                      href="/client/settings"
+                      href="https://uat.klola.app"
+                      target="tab"
                       onClick={() => setDropdownOpen(false)}
                       className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-foreground transition-colors hover:bg-muted"
                     >
-                      <Settings className="size-4" />
-                      Pengaturan
+                      <LogOut className="size-4" />
+                      Kembali
                     </Link>
-                    <button
+                    {/* <button
                       type="button"
                       onClick={handleLogout}
                       className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-foreground transition-colors hover:bg-muted"
                     >
                       <LogOut className="size-4" />
                       Keluar
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               </>
@@ -337,6 +336,7 @@ export default function SidebarClient({ children }: { children: ReactNode }) {
         </header>
 
         <div className="flex min-h-0 flex-1 overflow-auto">{children}</div>
+        <Footer />
       </AnimatedSidebarInset>
     </AnimatedSidebarProvider>
   );

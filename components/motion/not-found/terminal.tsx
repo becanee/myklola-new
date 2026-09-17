@@ -2,6 +2,7 @@
 // beui.dev/components/blocks/not-found
 
 import { TextReveal } from "@/components/motion/text-reveal";
+import { motion } from "motion/react";
 import {
   NOT_FOUND_DEFAULTS,
   NotFoundActions,
@@ -9,6 +10,7 @@ import {
   type NotFoundProps,
 } from "./shared";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 const TYPE_SPRING = { stiffness: 320, damping: 30, mass: 0.6 };
 
@@ -25,7 +27,7 @@ export function NotFoundTerminal({
   const pathname = usePathname();
   return (
     <NotFoundStage className={className}>
-      <div className="w-full max-w-md overflow-hidden rounded-xl border border-border bg-neutral-950 text-left shadow-lg">
+      {/* <div className="w-full max-w-md overflow-hidden rounded-xl border border-border bg-neutral-950 text-left shadow-lg">
         <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-3">
           <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
           <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
@@ -68,19 +70,35 @@ export function NotFoundTerminal({
             <span className="ml-1 inline-block h-[1.1em] w-[0.55ch] translate-y-[0.12em] bg-white/80 motion-safe:animate-pulse" />
           </p>
         </div>
-      </div>
+      </div> */}
 
       <div className="flex flex-col items-center gap-2">
         <p className="text-lg font-semibold text-foreground">{title}</p>
         <p className="max-w-sm text-sm text-muted-foreground">{description}</p>
       </div>
 
-      <NotFoundActions
+      {/* Support link */}
+      <motion.p
+        className="text-center text-sm text-muted-foreground"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.4 }}
+      >
+        Need help?{" "}
+        <Link
+          href="#"
+          className="font-medium text-[#0B3464] underline-offset-4 hover:underline"
+        >
+          Contact administrator
+        </Link>
+      </motion.p>
+
+      {/* <NotFoundActions
         homeHref={homeHref}
         homeLabel={homeLabel}
         browseHref={browseHref}
         browseLabel={browseLabel}
-      />
+      /> */}
     </NotFoundStage>
   );
 }
