@@ -5,25 +5,9 @@ import { CheckCircle2, Clock, FileStack, Inbox } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import FilterBar from "./filter-bar";
 import { AllTicketsTable } from "./table";
+import { fetchTickets, type TicketApiRecord } from "./logic";
 
-interface ApiTicket {
-  id: string;
-  company_id: string | null;
-  subject: string | null;
-  category: string;
-  priority: string;
-  status: string;
-  description: string | null;
-  attachments: unknown[] | null;
-  closed_avg: number;
-  created_at: string;
-  created_by: string | null;
-  updated_at: string | null;
-  updated_by: string | null;
-  assign_to: string;
-}
-
-function mapTicket(row: ApiTicket) {
+function mapTicket(row: TicketApiRecord) {
   return {
     id: row.id,
     ticket_id: row.id,
@@ -66,7 +50,7 @@ const STATUS_KEYS: Record<string, string> = {
 };
 
 export default function TicketsModule() {
-  const [rows, setRows] = useState<ApiTicket[]>([]);
+  const [rows, setRows] = useState<TicketApiRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -74,13 +58,8 @@ export default function TicketsModule() {
   const [categoryFilter, setCategoryFilter] = useState("all");
 
   useEffect(() => {
-    fetch("/api/v1/tickets")
-      .then((r) => r.json())
-      .then((json) => {
-        if (json.success && Array.isArray(json.data)) {
-          setRows(json.data);
-        }
-      })
+    fetchTickets()
+      .then(setRows)
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);

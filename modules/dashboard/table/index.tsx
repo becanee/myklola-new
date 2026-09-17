@@ -3,7 +3,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { Table } from "@/components/motion/table";
 import { ticketColumns, type Ticket } from "./column";
-import TicketDetailSheet from "@/components/ticket-detail-sheet";
 
 function mapRow(row: Record<string, unknown>): Ticket {
   return {
@@ -81,11 +80,6 @@ export default function LatestTicketsTable() {
         height={400}
         rowHeight={48}
         className="rounded-xl border border-border/50"
-      />
-      <TicketDetailSheet
-        ticket={selectedTicket}
-        open={!!selectedTicket}
-        onOpenChange={(open) => { if (!open) setSelectedTicket(null); }}
       />
     </div>
   );

@@ -18,6 +18,7 @@ import TiptapEditor from "./editor";
 import PriorityRadio from "./priority-radio";
 import FileUpload, { type UploadedFile } from "./upload";
 import Link from "next/link";
+import { createTicket } from "@/modules/tickets/logic";
 
 const CATEGORIES = ['General', 'Account', 'Incident', 'Bussiness', 'Payroll', 'Helpdesk'];
 
@@ -44,25 +45,13 @@ export default function CreateTicketModule() {
     const loadingId = showToast({ status: "loading", title: "Mengirim tiket...", duration: 0 });
 
     try {
-      const formData = new FormData();
-      formData.append("subject", subject.trim());
-      formData.append("category", category);
-      formData.append("priority", priority);
-      formData.append("description", description);
-      for (const f of files) {
-        formData.append("attachments", f.file);
-      }
-
-      const res = await fetch("/api/v1/tickets", {
-        method: "POST",
-        body: formData,
+      await createTicket({
+        subject: subject.trim(),
+        category,
+        priority,
+        description,
+        attachments: files.map((file) => file.file),
       });
-
-      const json = await res.json();
-
-      if (!res.ok) {
-        throw new Error(json.message || "Failed to create ticket");
-      }
 
       updateToast(loadingId, {
         status: "success",
