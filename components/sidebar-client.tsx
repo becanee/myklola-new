@@ -101,7 +101,7 @@ export default function SidebarClient({ children }: { children: ReactNode }) {
     document.cookie = "_T=; path=/; max-age=0";
     document.cookie = "_C=; path=/; max-age=0";
     document.cookie = "_U=; path=/; max-age=0";
-    router.push("/");
+    router.push("/forbidden");
   };
 
   return (
